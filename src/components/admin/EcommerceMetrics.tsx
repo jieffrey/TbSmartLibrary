@@ -1,0 +1,127 @@
+"use client";
+import React from "react";
+import Badge from "../ui/badge/Badge";
+import Ecommerce from '../../app/admin/page';
+import { 
+  ArrowDownIcon, 
+  ArrowUpIcon, 
+  BoxIconLine, 
+  GroupIcon 
+} from "@/icons";
+
+export const EcommerceMetrics = () => {
+  return (
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-6">
+
+      {/* Total Books */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+        <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl dark:bg-gray-800">
+          <BoxIconLine className="text-gray-800 size-6 dark:text-white/90" />
+        </div>
+
+        <div className="flex items-end justify-between mt-5">
+          <div>
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              Total Buku
+            </span>
+            <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
+              1,240
+            </h4>
+          </div>
+          <Badge color="success">
+            <ArrowUpIcon />
+            2.4%
+          </Badge>
+        </div>
+      </div>
+
+      {/* Available Books */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+        <div className="flex items-center justify-center w-12 h-12 bg-green-100 rounded-xl dark:bg-gray-800">
+          <BoxIconLine className="text-green-600 size-6 dark:text-white/90" />
+        </div>
+
+        <div className="flex items-end justify-between mt-5">
+          <div>
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              Buku Tersedia
+            </span>
+            <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
+              830
+            </h4>
+          </div>
+          <Badge color="success">
+            <ArrowUpIcon />
+            1.2%
+          </Badge>
+        </div>
+      </div>
+
+      {/* Borrowed Books */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+        <div className="flex items-center justify-center w-12 h-12 bg-yellow-100 rounded-xl dark:bg-gray-800">
+          <BoxIconLine className="text-yellow-600 size-6 dark:text-white/90" />
+        </div>
+
+        <div className="flex items-end justify-between mt-5">
+          <div>
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              Buku Dipinjam
+            </span>
+            <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
+              410
+            </h4>
+          </div>
+          <Badge color="error">
+            <ArrowDownIcon className="text-error-500" />
+            3.8%
+          </Badge>
+        </div>
+      </div>
+
+      {/* Active Users */}
+      {/* <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+        <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-xl dark:bg-gray-800">
+          <GroupIcon className="text-blue-600 size-6 dark:text-white/90" />
+        </div>
+
+        <div className="flex items-end justify-between mt-5">
+          <div>
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              User Aktif
+            </span>
+            <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
+              312
+            </h4>
+          </div>
+          <Badge color="success">
+            <ArrowUpIcon />
+            5.4%
+          </Badge>
+        </div>
+      </div> */}
+
+      {/* Overdue Borrowings */}
+      {/* <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+        <div className="flex items-center justify-center w-12 h-12 bg-red-100 rounded-xl dark:bg-gray-800">
+          <BoxIconLine className="text-red-600 size-6 dark:text-white/90" />
+        </div>
+
+        <div className="flex items-end justify-between mt-5">
+          <div>
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              Lewat Jatuh Tempo
+            </span>
+            <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
+              58
+            </h4>
+          </div>
+          <Badge color="error">
+            <ArrowDownIcon className="text-error-500" />
+            12.1%
+          </Badge>
+        </div>
+      </div> */}
+    </div>
+  );
+};
