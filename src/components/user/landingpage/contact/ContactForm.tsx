@@ -7,7 +7,14 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 
 const formSchema = z.object({
   name: z.string().min(2, "Nama terlalu pendek"),
@@ -31,7 +38,11 @@ export default function ContactForm() {
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto shadow-lg border border-gray-200 dark:border-gray-800">
+    <Card className="
+      w-full max-w-md mx-auto shadow-lg
+      border border-gray-200 dark:border-white/10
+      bg-white dark:bg-gray-900/60 backdrop-blur
+    ">
       <CardHeader>
         <CardTitle className="text-2xl text-center font-bold text-[var(--color-primary)]">
           Hubungi Kami
@@ -40,44 +51,19 @@ export default function ContactForm() {
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {/* Nama */}
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nama Lengkap</FormLabel>
+                  <FormLabel className="text-gray-700 dark:text-gray-300">
+                    Nama Lengkap
+                  </FormLabel>
                   <FormControl>
-                    <Input placeholder="Masukkan nama kamu" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Masukkan email kamu" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="message"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Pesan</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Tulis pesan kamu di sini..."
-                      className="resize-none"
+                    <Input
+                      placeholder="Masukkan nama kamu"
+                      className="dark:bg-gray-800 dark:border-gray-700 dark:text-white"
                       {...field}
                     />
                   </FormControl>
@@ -86,7 +72,53 @@ export default function ContactForm() {
               )}
             />
 
-            <Button type="submit" className="w-full bg-[var(--color-primary)] text-black font-semibold">
+            {/* Email */}
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-gray-700 dark:text-gray-300">
+                    Email
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Masukkan email kamu"
+                      className="dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Pesan */}
+            <FormField
+              control={form.control}
+              name="message"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-gray-700 dark:text-gray-300">
+                    Pesan
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Tulis pesan kamu di sini..."
+                      className="resize-none dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Tombol */}
+            <Button
+              type="submit"
+              className="w-full bg-[var(--color-primary)] text-black font-semibold dark:text-black"
+            >
               Kirim Pesan
             </Button>
           </form>

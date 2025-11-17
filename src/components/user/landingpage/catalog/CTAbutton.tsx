@@ -14,8 +14,24 @@ export default function CTAButton({ href, text, variant = "primary", onClick }: 
 
   const styles =
     variant === "primary"
-      ? "bg-[var(--color-primary)] text-black hover:bg-transparent hover:text-[var(--color-primary)] hover:border-[var(--color-primary)]"
-      : "bg-transparent border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-black"
+      ? `
+          bg-[var(--color-primary)] 
+          text-black 
+          border-transparent
+          hover:bg-transparent 
+          hover:text-[var(--color-primary)] 
+          hover:border-[var(--color-primary)]
+          dark:text-black 
+          dark:hover:text-[var(--color-primary)]
+        `
+      : `
+          bg-transparent 
+          border-[var(--color-primary)] 
+          text-[var(--color-primary)] 
+          hover:bg-[var(--color-primary)] 
+          hover:text-black
+          dark:text-[var(--color-primary)]
+        `
 
   const className = `${baseStyle} ${styles}`
 

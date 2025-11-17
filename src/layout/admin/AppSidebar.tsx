@@ -30,7 +30,7 @@ const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
     name: "Dashboard",
-    href: "/admin/dashboard",
+    href: "/admin",
   },
   {
     icon: <CalenderIcon />,
@@ -46,17 +46,12 @@ const navItems: NavItem[] = [
   {
     name: "Peminjaman",
     icon: <ListIcon />,
-    subItems: [
-      { name: "Peminjaman Aktif", href: "/admin/dashboard/loans/active" },
-      { name: "Peminjaman Terlambat", href: "/admin/dashboard/loans/overdue" },
-      { name: "Pengembalian", href: "/admin/dashboard/loans/return" },
-    ],
-  },
-
-  {
-    name: "Denda",
-    icon: <TableIcon />,
-    href: "/admin/dashboard/fines",
+    href: '/admin/dashboard/loans'
+    // subItems: [
+    //   { name: "Peminjaman Aktif", href: "/admin/dashboard/loans/active" },
+    //   { name: "Peminjaman Terlambat", href: "/admin/dashboard/loans/overdue" },
+    //   { name: "Pengembalian", href: "/admin/dashboard/loans/return" },
+    // ],
   },
   {
     name: "Laporan",

@@ -1,186 +1,104 @@
-// "use client";
+"use client";
 
-// import { useState } from "react";
-// import {
-//   Box,
-//   Card,
-//   CardContent,
-//   Typography,
-//   TextField,
-//   MenuItem,
-//   Button,
-//   Grid,
-//   Chip,
-// } from "@mui/material";
-// import { DataGrid, GridColDef } from "@mui/x-data-grid";
-// import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import React from "react";
+import TopBooksChart from "@/components/admin/laporan/TopBookChart";
+import TopUsersChart from "@/components/admin/laporan/TopUsersChart";
+import MonthlyLoansChart from "@/components/admin/laporan/MonthlyLoansChart";
+import ExportButtons from "@/components/admin/laporan/ExportButtons";
+import { Card, CardContent } from "@/components/ui/card";
 
-// export default function ReturnReports() {
-//   // ===== Dummy Data =====
-//   const dataDummy = [
-//     {
-//       id: 1,
-//       borrower: "Andi Saputra",
-//       book: "Belajar React.js",
-//       borrowDate: "2025-01-05",
-//       returnDate: "2025-01-12",
-//       status: "Tepat Waktu",
-//     },
-//     {
-//       id: 2,
-//       borrower: "Budi Santoso",
-//       book: "Dasar Pemrograman",
-//       borrowDate: "2025-01-02",
-//       returnDate: "2025-01-15",
-//       status: "Terlambat",
-//     },
-//     {
-//       id: 3,
-//       borrower: "Citra Dewi",
-//       book: "Psikologi Warna",
-//       borrowDate: "2025-01-01",
-//       returnDate: "2025-01-07",
-//       status: "Tepat Waktu",
-//     },
-//     {
-//       id: 4,
-//       borrower: "Dewi Kusuma",
-//       book: "Algoritma & Struktur Data",
-//       borrowDate: "2024-12-28",
-//       returnDate: "2025-01-10",
-//       status: "Terlambat",
-//     },
-//   ];
+export default function ReportsPage() {
+  // --- Dummy data (ganti dgn API call nanti) ---
+  const topBooks = [
+    { title: "Belajar React untuk Pemula", count: 128 },
+    { title: "JavaScript Advanced", count: 89 },
+    { title: "Next.js Mastery", count: 76 },
+    { title: "Algoritma & Struktur Data", count: 68 },
+    { title: "Design Patterns", count: 55 },
+  ];
 
-//   // ===== Filters =====
-//   const [startDate, setStartDate] = useState("");
-//   const [endDate, setEndDate] = useState("");
-//   const [statusFilter, setStatusFilter] = useState("all");
+  const topUsers = [
+    { name: "Kalsah Alkautsar", loans: 42 },
+    { name: "Siti Aisyah", loans: 34 },
+    { name: "Budi Santoso", loans: 28 },
+    { name: "Rina Marlina", loans: 22 },
+    { name: "Joko Widodo", loans: 18 },
+  ];
 
-//   // ===== Filter Logic =====
-//   const filteredData = dataDummy.filter((item) => {
-//     const itemDate = new Date(item.returnDate);
-//     const start = startDate ? new Date(startDate) : null;
-//     const end = endDate ? new Date(endDate) : null;
+  const monthly = [
+    { month: "Jan", count: 120 },
+    { month: "Feb", count: 98 },
+    { month: "Mar", count: 140 },
+    { month: "Apr", count: 112 },
+    { month: "May", count: 152 },
+    { month: "Jun", count: 130 },
+    { month: "Jul", count: 170 },
+    { month: "Aug", count: 160 },
+    { month: "Sep", count: 140 },
+    { month: "Oct", count: 185 },
+    { month: "Nov", count: 210 },
+    { month: "Dec", count: 220 },
+  ];
 
-//     return (
-//       (!start || itemDate >= start) &&
-//       (!end || itemDate <= end) &&
-//       (statusFilter === "all" || item.status === statusFilter)
-//     );
-//   });
+  // payload gabungan untuk export sederhana
+  const exportPayload = monthly.map((m) => ({ Month: m.month, Peminjaman: m.count }));
 
-//   // ===== Columns =====
-//   const columns: GridColDef[] = [
-//     { field: "id", headerName: "ID", width: 60 },
-//     { field: "borrower", headerName: "Nama Peminjam", flex: 1 },
-//     { field: "book", headerName: "Judul Buku", flex: 1 },
-//     { field: "borrowDate", headerName: "Tanggal Pinjam", width: 140 },
-//     { field: "returnDate", headerName: "Tanggal Kembali", width: 140 },
-//     {
-//       field: "status",
-//       headerName: "Status",
-//       width: 150,
-//       renderCell: (params) => (
-//         <Chip
-//           label={params.value}
-//           color={params.value === "Terlambat" ? "error" : "success"}
-//         />
-//       ),
-//     },
-//   ];
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Laporan & Statistik</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Ringkasan aktivitas peminjaman dan pengguna.</p>
+        </div>
 
-//   // ===== PDF Export Placeholder =====
-//   const exportPDF = () => {
-//     alert("📄 Export PDF masih dummy. Mau gue buatin versi PDF asli?");
-//   };
+        <div className="flex items-center gap-3">
+          <ExportButtons reportName="laporan-peminjaman" payload={exportPayload} />
+        </div>
+      </div>
 
-//   return (
-//     <Box sx={{ p: 4 }}>
-//       <Typography variant="h4" fontWeight="bold" mb={3}>
-//         Laporan Pengembalian Buku 📄
-//       </Typography>
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <MonthlyLoansChart data={monthly} />
+        </div>
 
-//       {/* ===== Filter Section ===== */}
-//       <Card sx={{ mb: 4 }}>
-//         <CardContent>
-//           <Typography variant="h6" fontWeight="bold" mb={2}>
-//             Filter Laporan
-//           </Typography>
+        <div className="space-y-6">
+          <TopBooksChart data={topBooks} />
+          <TopUsersChart data={topUsers} />
+        </div>
+      </div>
 
-//           <Grid container spacing={3}>
-//             <Grid item xs={12} sm={4}>
-//               <TextField
-//                 fullWidth
-//                 type="date"
-//                 label="Tanggal Awal"
-//                 InputLabelProps={{ shrink: true }}
-//                 value={startDate}
-//                 onChange={(e) => setStartDate(e.target.value)}
-//               />
-//             </Grid>
+      {/* Small summary cards (optional) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="p-4">
+          <CardContent>
+            <p className="text-sm text-gray-500">Total Peminjaman</p>
+            <h3 className="text-xl font-semibold">1,524</h3>
+          </CardContent>
+        </Card>
 
-//             <Grid item xs={12} sm={4}>
-//               <TextField
-//                 fullWidth
-//                 type="date"
-//                 label="Tanggal Akhir"
-//                 InputLabelProps={{ shrink: true }}
-//                 value={endDate}
-//                 onChange={(e) => setEndDate(e.target.value)}
-//               />
-//             </Grid>
+        <Card className="p-4">
+          <CardContent>
+            <p className="text-sm text-gray-500">Buku Terpopuler</p>
+            <h3 className="text-xl font-semibold">Belajar React untuk Pemula</h3>
+          </CardContent>
+        </Card>
 
-//             <Grid item xs={12} sm={4}>
-//               <TextField
-//                 select
-//                 fullWidth
-//                 label="Status"
-//                 value={statusFilter}
-//                 onChange={(e) => setStatusFilter(e.target.value)}
-//               >
-//                 <MenuItem value="all">Semua</MenuItem>
-//                 <MenuItem value="Tepat Waktu">Tepat Waktu</MenuItem>
-//                 <MenuItem value="Terlambat">Terlambat</MenuItem>
-//               </TextField>
-//             </Grid>
-//           </Grid>
+        <Card className="p-4">
+          <CardContent>
+            <p className="text-sm text-gray-500">User Aktif Bulan Ini</p>
+            <h3 className="text-xl font-semibold">312</h3>
+          </CardContent>
+        </Card>
 
-//           <Button
-//             variant="contained"
-//             color="primary"
-//             startIcon={<PictureAsPdfIcon />}
-//             sx={{ mt: 3 }}
-//             onClick={exportPDF}
-//           >
-//             Export PDF
-//           </Button>
-//         </CardContent>
-//       </Card>
-
-//       {/* ===== Data Table ===== */}
-//       <Card>
-//         <CardContent>
-//           <Typography variant="h6" fontWeight="bold" mb={2}>
-//             Hasil Laporan
-//           </Typography>
-
-//           <Box sx={{ height: 450 }}>
-//             <DataGrid
-//               rows={filteredData}
-//               columns={columns}
-//               pageSizeOptions={[5, 10]}
-//               initialState={{
-//                 pagination: { paginationModel: { pageSize: 5 } },
-//               }}
-//               sx={{
-//                 borderRadius: 2,
-//                 background: "#fff",
-//               }}
-//             />
-//           </Box>
-//         </CardContent>
-//       </Card>
-//     </Box>
-//   );
-// }
+        <Card className="p-4">
+          <CardContent>
+            <p className="text-sm text-gray-500">Peminjaman Lewat Jatuh Tempo</p>
+            <h3 className="text-xl font-semibold text-red-600">58</h3>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

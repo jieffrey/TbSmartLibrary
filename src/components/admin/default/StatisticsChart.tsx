@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { ApexOptions } from "apexcharts";
 import dynamic from "next/dynamic";
-import ChartTab from "./ChartTab";
+import ChartTab from "../ChartTab";
 
 // Dynamic import ApexChart
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {

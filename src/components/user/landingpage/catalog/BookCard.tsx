@@ -15,7 +15,11 @@ interface BookCardProps {
 
 export default function BookCard({ id, title, category, rating, img }: BookCardProps) {
   return (
-    <Card className="group bg-white/80 backdrop-blur-md shadow-md rounded-xl overflow-hidden hover:shadow-lg transition">
+    <Card className="
+      group backdrop-blur-md rounded-xl overflow-hidden shadow-md hover:shadow-lg transition
+      bg-white/80 dark:bg-white/5
+      border border-gray-200 dark:border-white/10
+    ">
       <div className="relative">
         <Image
           src={img}
@@ -24,20 +28,26 @@ export default function BookCard({ id, title, category, rating, img }: BookCardP
           height={500}
           className="object-cover w-full h-64 group-hover:scale-105 transition duration-300"
         />
-        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+        <div className="
+          absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 
+          transition flex items-center justify-center
+        ">
           <CTAButton
-            href={`/catalog/${id}`}
+            href={'/full-width-pages/auth/signup'} ///catalog/${id} with data
             text="Pinjam Sekarang"
             variant="primary"
           />
         </div>
       </div>
       <CardContent className="p-4 text-left">
-        <h3 className="font-semibold text-lg">{title}</h3>
-        <p className="text-sm text-gray-500">{category}</p>
+        <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
+          {title}
+        </h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400">{category}</p>
+
         <div className="flex items-center gap-1 mt-2 text-yellow-500">
           <Star size={16} fill="currentColor" />
-          <span className="text-sm text-gray-600">{rating}</span>
+          <span className="text-sm text-gray-600 dark:text-gray-300">{rating}</span>
         </div>
       </CardContent>
     </Card>
