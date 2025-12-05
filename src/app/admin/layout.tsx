@@ -20,7 +20,7 @@ export default function AdminLayout({
     : "lg:ml-[90px]";
 
   return (
-    <div className="min-h-screen xl:flex">
+    <div className="min-h-screen xl:flex bg-white border-[#FFE7B3] dark:bg-[#1A1A1A] dark:border-[#333333]">
       {/* Sidebar */}
       <AppSidebar />
       <Backdrop />

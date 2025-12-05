@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { usePathname } from "next/navigation";
+import ThemeTogglerTwo from "@/components/common/ThemeTogglerTwo";
 
 const Navbar: React.FC = () => {
   const [sticky, setSticky] = useState(false);
@@ -78,7 +79,7 @@ const Navbar: React.FC = () => {
                 text-base font-medium transition-colors
                 ${
                   isHomepage && !sticky
-                    ? "text-white dark:text-white"
+                    ? "text-black dark:text-white"
                     : "text-black dark:text-white"
                 }
                 hover:text-[var(--color-primary-dark)]
@@ -94,7 +95,7 @@ const Navbar: React.FC = () => {
               text-base font-medium transition-colors 
               ${
                 isHomepage && !sticky
-                  ? "text-white dark:text-white"
+                  ? "text-black dark:text-white"
                   : "text-black dark:text-white"
               }
               hover:text-[var(--color-primary-dark)]
@@ -103,6 +104,10 @@ const Navbar: React.FC = () => {
             Masuk
           </Link>
         </div>
+        {/* Theme Toggle */}
+                <div className="fixed bottom-6 right-6 z-50">
+                  <ThemeTogglerTwo />
+                </div>
 
         {/* === RIGHT MOBILE MENU BUTTON === */}
         <button
@@ -113,72 +118,97 @@ const Navbar: React.FC = () => {
             ${
               sticky
                 ? "bg-white text-black dark:bg-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700"
-                : "bg-[var(--color-primary)] text-black hover:bg-white hover:text-[var(--color-primary)] dark:bg-[#1c2a3a] dark:text-white dark:hover:bg-gray-700"
+                : "bg-[var(--color-primary)] text-black hover:bg-white dark:bg-[#1c2a3a] dark:text-white dark:hover:bg-gray-700"
             }
           `}
         >
           <Icon icon="ph:list" width={24} height={24} />
           <span className="hidden sm:block">Menu</span>
         </button>
-      </nav>
+        </nav>
 
-      {/* Overlay */}
-      {navbarOpen && (
-        <div className="fixed top-0 left-0 w-full h-full bg-black/50 dark:bg-black/60 z-40" />
-      )}
+        {/* Overlay */}
+        {navbarOpen && (
+          <div className="fixed top-0 left-0 w-full h-full bg-black/60 z-40" />
+        )}
 
-      {/* === SIDE MENU === */}
-      <div
-        ref={sideMenuRef}
-        className={`
-          fixed top-0 right-0 h-full w-full max-w-sm 
-          bg-black text-white 
-          dark:bg-[#0b1623] dark:text-gray-100
-          shadow-lg px-10 py-10 
-          transition-transform duration-300
-          ${navbarOpen ? "translate-x-0" : "translate-x-full"}
-          z-50 overflow-auto
-        `}
-      >
-        <div className="flex flex-col h-full justify-between">
-          <div className="flex justify-start mb-6">
-            <button
-              onClick={() => setNavbarOpen(false)}
-              className="bg-[var(--color-primary)] dark:bg-[#285c7a] p-3 rounded-full"
-            >
-              <Icon icon="ph:x-bold" width={24} height={24} className="text-black dark:text-white" />
-            </button>
-          </div>
+        {/* === SIDE MENU === */}
+        <div
+          ref={sideMenuRef}
+          className={`
+            fixed top-0 right-0 h-full w-full max-w-sm 
+            bg-white text-black                  /* ⭐ Light Mode lebih bersih */
+            dark:bg-[#0d1b2a] dark:text-gray-100 /* ⭐ Dark Mode lebih gelap agar kontras */
+            shadow-lg px-10 py-10
+            transition-transform duration-300
+            ${navbarOpen ? "translate-x-0" : "translate-x-full"}
+            z-50 overflow-auto
+          `}
+        >
+          <div className="flex flex-col h-full justify-between">
 
-          <nav className="flex flex-col items-start gap-6">
-            {["catalog", "tentang", "contact"].map((sec) => (
+            {/* Close Button */}
+            <div className="flex justify-start mb-6">
               <button
-                key={sec}
-                onClick={() => scrollToSection(sec)}
-                className="hover:text-[var(--color-primary)] dark:hover:text-[var(--color-primary)]"
+                onClick={() => setNavbarOpen(false)}
+                className="bg-gray-100 dark:bg-gray-700 p-3 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600"
               >
-                {sec === "catalog" ? "Katalog Buku" : sec === "tentang" ? "Tentang" : "Kontak"}
+                <Icon icon="ph:x-bold" width={24} height={24} className="text-black dark:text-white" />
               </button>
-            ))}
-            <Link
-              href="/login"
-              className="hover:text-[var(--color-primary)] dark:hover:text-[var(--color-primary)]"
-            >
-              Masuk
-            </Link>
-          </nav>
+            </div>
 
-          <div className="flex flex-col gap-1 mt-16 text-white dark:text-gray-300">
-            <p className="text-base font-normal text-white/40 dark:text-gray-500">Contact</p>
-            <Link href="#" className="text-base font-medium hover:text-[var(--color-primary)]">
-              kalsahalkautsar@gmail.com
-            </Link>
-            <Link href="#" className="text-base font-medium hover:text-[var(--color-primary)]">
-              +62 87839615005
-            </Link>
+            {/* NAVIGATION LIST */}
+            <nav className="flex flex-col items-start gap-6">
+
+              {["catalog", "tentang", "contact"].map((sec) => (
+                <button
+                  key={sec}
+                  onClick={() => scrollToSection(sec)}
+                  className="
+                    text-lg font-medium
+                    hover:underline hover:underline-offset-4     /* ⭐ hover aman tidak hilang */
+                    dark:hover:text-[var(--color-primary)]
+                  "
+                >
+                  {sec === "catalog" ? "Katalog Buku" : sec === "tentang" ? "Tentang" : "Kontak"}
+                </button>
+              ))}
+
+              <Link
+                href="/login"
+                className="
+                  text-lg font-medium
+                  hover:underline hover:underline-offset-4       /* ⭐ konsisten */
+                  dark:hover:text-[var(--color-primary)]
+                "
+              >
+                Masuk
+              </Link>
+            </nav>
+
+            {/* CONTACT SECTION */}
+            <div className="flex flex-col gap-1 mt-16 text-gray-700 dark:text-gray-300">
+              <p className="text-base font-normal text-gray-500 dark:text-gray-500">
+                Contact
+              </p>
+
+              <Link
+                href="#"
+                className="text-base font-medium hover:text-[var(--color-primary)] hover:underline"
+              >
+                kalsahalkautsar@gmail.com
+              </Link>
+
+              <Link
+                href="#"
+                className="text-base font-medium hover:text-[var(--color-primary)] hover:underline"
+              >
+                +62 87839615005
+              </Link>
+            </div>
+
           </div>
         </div>
-      </div>
     </header>
   );
 };

@@ -1,16 +1,16 @@
 "use client";
 
-interface ChartTabProps {
+interface Props {
   active: "weekly" | "monthly";
   setActive: (value: "weekly" | "monthly") => void;
 }
 
-export default function ChartTab({ active, setActive }: ChartTabProps) {
+export default function ({ active, setActive }: Props) {
   return (
     <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
       <button
         onClick={() => setActive("weekly")}
-        className={`px-4 py-2 text-sm rounded-md transition ${
+        className={`px-4 py-2 text-sm rounded-md  transition ${
           active === "weekly"
             ? "bg-white dark:bg-gray-900 shadow font-semibold"
             : "text-gray-500"

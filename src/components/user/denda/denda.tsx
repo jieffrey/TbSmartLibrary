@@ -33,7 +33,7 @@ export default function DendaAktifList() {
   return (
     <div className="space-y-4">
       {dendaAktif.map((item) => (
-        <Card key={item.id} className="border border-gray-200 dark:border-gray-700">
+        <Card key={item.id} className="border border-gray-200 dark:border-gray-700 dark:bg-white/[0.03]">
           <CardContent className="p-4 flex justify-between items-center">
             <div>
               <h3 className="font-semibold">{item.title}</h3>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "../../context/SidebarContext";
+import LogoutButton from '../../components/auth/LogoutButton';
 
 import {
   BoxCubeIcon,
@@ -219,7 +220,7 @@ const AppSidebar: React.FC = () => {
 
   return (
     <aside
-      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 border-r border-gray-200 z-50
+      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-[#fff8e7] dark:bg-[#1A1A1A] dark:border-gray-800 text-[#1A1A1A] h-screen transition-all duration-300 border-r border-[#FFE7B3] z-50
       ${isExpanded || isMobileOpen ? "w-[290px]" : isHovered ? "w-[290px]" : "w-[90px]"}
       ${isMobileOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
       onMouseEnter={() => !isExpanded && setIsHovered(true)}
@@ -272,6 +273,8 @@ const AppSidebar: React.FC = () => {
           </div>
         </nav>
       </div>
+
+      <LogoutButton/>
     </aside>
   );
 };

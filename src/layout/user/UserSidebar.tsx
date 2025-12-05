@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "../../context/SidebarContext";
+import LogoutButton from "@/components/auth/LogoutButton";
 import {
   BoxCubeIcon,
   CalenderIcon,
@@ -28,37 +29,34 @@ type NavItem = {
 const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
-    name: "Dashboard",
-    subItems: [{ name: "Ecommerce", path: "/", pro: false }],
+    name: "Home",
+    path: "/user"
   },
   {
     icon: <CalenderIcon />,
-    name: "Calendar",
-    path: "/calendar",
+    name: "Wishlist",
+    path: "/user/wishlist",
   },
   {
     icon: <UserCircleIcon />,
-    name: "User Profile",
-    path: "/profile",
+    name: "Pinjaman",
+    path: "/user/on-loans",
   },
 
   {
-    name: "Forms",
+    name: "Riwayat",
     icon: <ListIcon />,
-    subItems: [{ name: "Form Elements", path: "/form-elements", pro: false }],
+    path: "/user/history"
   },
   {
-    name: "Tables",
+    name: "denda",
     icon: <TableIcon />,
-    subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
+    path: "/user/denda"
   },
   {
-    name: "Pages",
-    icon: <PageIcon />,
-    subItems: [
-      { name: "Blank Page", path: "/blank", pro: false },
-      { name: "404 Error", path: "/error-404", pro: false },
-    ],
+    name: "Profile",
+    icon: <UserCircleIcon />,
+    path: "/user/profile"
   },
 ];
 
@@ -236,19 +234,16 @@ const UserSidebar: React.FC = () => {
 
   return (
     <aside
-      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 
-        ${
-          isExpanded || isMobileOpen
-            ? "w-[290px]"
-            : isHovered
-            ? "w-[290px]"
-            : "w-[90px]"
-        }
-        ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
-        lg:translate-x-0`}
-      onMouseEnter={() => !isExpanded && setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
+  className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 
+  bg-[#fff8e7] text-[#1A1A1A]
+  dark:bg-[#1A1A1A] dark:text-white
+  h-screen border-r border-[#FFE7B3]
+  dark:border-gray-800 
+  transition-all duration-300 ease-in-out z-50
+  ${isExpanded || isMobileOpen ? "w-[290px]" : isHovered ? "w-[290px]" : "w-[90px]"}
+  ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
+  lg:translate-x-0`}
+  >
       <div
         className={`py-8 flex  ${
           !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
@@ -259,14 +254,14 @@ const UserSidebar: React.FC = () => {
             <>
               <Image
                 className="dark:hidden"
-                src="/images/logo/logo`.svg"
+                src="/images/logo/logotb1.svg"
                 alt="Logo"
                 width={150}
                 height={40}
               />
               <Image
                 className="hidden dark:block"
-                src="/images/logo/logo-dark.svg"
+                src="/images/logo/logotb1.svg"
                 alt="Logo"
                 width={150}
                 height={40}
@@ -274,7 +269,7 @@ const UserSidebar: React.FC = () => {
             </>
           ) : (
             <Image
-              src="/images/logo/logo-icon.svg"
+              src="/images/logo/iconss.svg"
               alt="Logo"
               width={32}
               height={32}
@@ -315,6 +310,7 @@ const UserSidebar: React.FC = () => {
           </div>
         </nav>
       </div>
+      <LogoutButton/>
     </aside>
   );
 };

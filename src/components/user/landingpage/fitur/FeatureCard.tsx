@@ -1,26 +1,33 @@
 "use client";
 import { motion } from "framer-motion";
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
-export default function FeatureCard({ icon, title, desc, delay }) {
+export default function FeatureCard({ icon, value, label, delay }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 60 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay }}
       viewport={{ once: true }}
+      className="
+        flex flex-col items-center justify-center 
+        bg-white/90 dark:bg-white/5 
+        backdrop-blur-md 
+        rounded-2xl 
+        shadow-md 
+        p-8 
+        border border-[var(--color-primary)]
+        hover:-translate-y-2 
+        hover:shadow-[0_0_20px_rgba(255,196,40,0.3)]
+        transition-all duration-300
+      "
     >
-      <Card className="p-6 rounded-2xl border-none shadow-lg hover:shadow-xl dark:bg-gray-800 transition duration-300 hover:-translate-y-2">
-        <CardHeader>
-          <div className="flex justify-center mb-4">{icon}</div>
-          <CardTitle className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">
-            {title}
-          </CardTitle>
-          <CardDescription className="text-gray-600 dark:text-gray-400">
-            {desc}
-          </CardDescription>
-        </CardHeader>
-      </Card>
+      <div className="mb-3">{icon}</div>
+
+      <h3 className="text-4xl font-bold text-[var(--color-dark)] dark:text-white mb-2">
+        {value}
+      </h3>
+
+      <p className="text-gray-700 dark:text-gray-300">{label}</p>
     </motion.div>
   );
 }

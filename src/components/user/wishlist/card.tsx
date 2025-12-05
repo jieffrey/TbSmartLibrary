@@ -6,7 +6,7 @@ import Image from "next/image";
 
 export default function WishlistCard({ book, onRemove, onBorrow }: any) {
   return (
-    <div className="bg-white dark:bg-zinc-900 border dark:border-zinc-800 rounded-xl p-4 shadow-sm flex gap-4">
+    <div className="bg-white dark:bg-white/[0.03] border dark:border-zinc-800 rounded-xl p-4 shadow-sm flex gap-4">
       
       {/* Cover */}
       <div className="w-20 h-28 relative rounded-md overflow-hidden shadow">

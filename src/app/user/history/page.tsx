@@ -1,39 +1,39 @@
 "use client";
 
 import HistoryList from "@/components/user/history/list";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createBrowserClient } from "@supabase/ssr";
+import type { Database } from "@/types/database.types";
 
 export default function HistoryPage() {
-  const [history, setHistory] = useState([
-    {
-      id: 1,
-      book: "Atomic Habits",
-      author: "James Clear",
-      borrowDate: "12 Jan 2025",
-      returnDate: "19 Jan 2025",
-      status: "on-time",
-      fine: 0,
-    },
-    {
-      id: 2,
-      book: "The Psychology of Money",
-      author: "Morgan Housel",
-      borrowDate: "1 Feb 2025",
-      returnDate: "8 Feb 2025",
-      status: "late",
-      fine: 5000,
-    },
-  ]);
+  const [history, setHistory] = useState([]);
 
-  const openDetail = (item: any) => {
-    alert("Detail transaksi: " + item.book);
-    // nanti diarahkan ke modal / halaman detail
-  };
+  useEffect(() => {
+    const supabase = createBrowserClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
+    async function loadHistory() {
+      const { data, error } = await supabase
+        .from("peminjaman")
+  .select("*");
+
+      if (error) console.error(error);
+      else setHistory(data || []);
+    }
+
+    loadHistory();
+  }, []);
+
+  function openDetail(item: any) {
+    alert("Detail transaksi: " + item.books.title);
+  }
 
   return (
     <div className="max-w-4xl mx-auto p-6 md:p-8">
       <h1 className="text-2xl font-bold mb-6 dark:text-white">
-        📘 History Peminjaman
+        Riwayat Peminjaman
       </h1>
 
       {history.length === 0 ? (

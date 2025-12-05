@@ -31,7 +31,7 @@ export default function UserTable() {
   ]);
 
   return (
-    <Card className="w-full bg-white dark:bg-[#0a0f1e] shadow-md border border-gray-200 dark:border-gray-800">
+    <Card className="w-full bg-white dark:bg-white/[0.03] shadow-md border border-gray-200 dark:border-gray-800">
       <CardContent className="p-6">
         <h2 className="text-xl font-bold mb-4 text-slate-800 dark:text-white">
           Daftar Pengguna
@@ -40,7 +40,7 @@ export default function UserTable() {
         <div className="w-full overflow-x-auto">
           <table className="min-w-full border-collapse">
             <thead>
-              <tr className="bgsky text-white dark:bg-sky-700/80">
+              <tr className="bgsky text-white dark:bg-[#FFC428]">
                 <th className="text-left p-3 text-sm font-semibold">Nama</th>
                 <th className="text-left p-3 text-sm font-semibold">Email</th>
                 <th className="text-left p-3 text-sm font-semibold">Role</th>

@@ -12,12 +12,11 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), {
 
 export default function MonthlySalesChart() {
   const [isOpen, setIsOpen] = useState(false);
-
   const toggleDropdown = () => setIsOpen(!isOpen);
   const closeDropdown = () => setIsOpen(false);
 
   const options: ApexOptions = {
-    colors: ["#3B82F6"],
+    colors: ["#FFC428"],
     chart: {
       fontFamily: "Outfit, sans-serif",
       type: "bar",
@@ -35,38 +34,36 @@ export default function MonthlySalesChart() {
     dataLabels: { enabled: false },
     stroke: {
       show: true,
-      width: 4,
-      colors: ["transparent"],
+      width: 3,
+      colors: ["#1A1A1A"],
+    },
+    fill: {
+      type: "gradient",
+      gradient: {
+        shadeIntensity: 1,
+        gradientToColors: ["#FFF8E7"],
+        opacityFrom: 1,
+        opacityTo: 1,
+      },
     },
     xaxis: {
       categories: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "Mei",
-        "Jun",
-        "Jul",
-        "Agu",
-        "Sep",
-        "Okt",
-        "Nov",
-        "Des",
+        "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
+        "Jul", "Agu", "Sep", "Okt", "Nov", "Des",
       ],
+      labels: { style: { colors: "#1A1A1A" } },
       axisBorder: { show: false },
       axisTicks: { show: false },
     },
     legend: {
-      show: true,
-      position: "top",
-      horizontalAlign: "left",
-      fontFamily: "Outfit",
+      show: false,
     },
     grid: {
+      borderColor: "#EEE",
       yaxis: { lines: { show: true } },
     },
     tooltip: {
-      x: { show: false },
+      theme: "dark",
       y: { formatter: (val: number) => `${val} buku dipinjam` },
     },
   };
@@ -79,37 +76,26 @@ export default function MonthlySalesChart() {
   ];
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
-      {/* ===== Header Chart ===== */}
+    <div className="overflow-hidden rounded-2xl border border-[#FFC428] bg-[#FFF8E7] dark:bg-white/[0.03] dark:border-[#333333] px-5 pt-5 shadow-md">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-          Statistik Peminjaman Buku
-        </h3>
-
+        <h3 className="text-lg font-semibold text-[#1A1A1A] dark:text-[#FFF8E7]">Statistik Peminjaman Buku</h3>
         <div className="relative inline-block">
-          <button onClick={toggleDropdown} className="dropdown-toggle">
-            <MoreDotIcon className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300" />
+          <button onClick={toggleDropdown}>
+            <MoreDotIcon className="text-[#1A1A1A]" />
           </button>
           <Dropdown isOpen={isOpen} onClose={closeDropdown} className="w-40 p-2">
-            <DropdownItem
-              onItemClick={closeDropdown}
-              className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-            >
+            <DropdownItem onItemClick={closeDropdown}>
               Lihat Detail
             </DropdownItem>
-            <DropdownItem
-              onItemClick={closeDropdown}
-              className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-            >
+            <DropdownItem onItemClick={closeDropdown}>
               Hapus
             </DropdownItem>
           </Dropdown>
         </div>
       </div>
 
-      {/* ===== Chart Area ===== */}
       <div className="max-w-full overflow-x-auto custom-scrollbar">
-        <div className="-ml-5 min-w-[650px] xl:min-w-full pl-2">
+        <div className="-ml-5 min-w-[650px] pl-2">
           <ReactApexChart
             options={options}
             series={series}

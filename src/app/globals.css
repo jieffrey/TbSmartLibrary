@@ -785,6 +785,7 @@ span.flatpickr-weekday,
 */
 
 :root {
+  --color-foreground: #FFC428;
   --color-primary: #fff8e7;
   --color-dark: #1A1A1A;
   --radius: 0.625rem;
@@ -870,4 +871,93 @@ span.flatpickr-weekday,
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Background Grid Texture */
+.bg-grid-black {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath fill='none' stroke='black' stroke-width='0.5' d='M0 .5H32M.5 0v32'/%3E%3C/svg%3E");
+}
+
+.bg-grid-white {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath fill='none' stroke='white' stroke-width='0.5' d='M0 .5H32M.5 0v32'/%3E%3C/svg%3E");
+}
+
+
+.bg-grid-black {
+  background-image: linear-gradient(to right, rgba(0,0,0,0.2) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(0,0,0,0.2) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.bg-grid-white {
+  background-image: linear-gradient(to right, rgba(255,255,255,0.12) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(255,255,255,0.12) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.65; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+.animate-pulse-slow {
+  animation: pulse-slow 6s ease-in-out infinite;
+}
+
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  transition: 0.25s;
+}
+
+/* Normal */
+.menu-item-inactive {
+  color: #1A1A1A;
+}
+.dark .menu-item-inactive {
+  color: #fff8e7;
+}
+
+/* Active */
+.menu-item-active {
+  background-color: #FFC428;
+  color: #1A1A1A;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(255,196,40,0.3);
+}
+
+/* Icons */
+.menu-item-icon-inactive svg {
+  stroke: #1A1A1A;
+}
+.dark .menu-item-icon-inactive svg {
+  stroke: #fff8e7;
+}
+.menu-item-icon-active svg {
+  stroke: #1A1A1A;
+}
+
+/* Text */
+.menu-item-text {
+  font-size: 15px;
+}
+
+/* Hover */
+.menu-item:hover {
+  background: rgba(255,196,40,0.15);
+}
+
+/* Dropdown Items */
+.menu-dropdown-item-inactive {
+  color: #1A1A1A;
+}
+.dark .menu-dropdown-item-inactive {
+  color: #fff8e7;
+}
+.menu-dropdown-item-active {
+  color: #1A1A1A;
+  font-weight: 600;
 }

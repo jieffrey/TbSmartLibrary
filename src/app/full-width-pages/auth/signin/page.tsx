@@ -7,5 +7,6 @@ export const metadata: Metadata = {
 };
 
 export default function SignIn() {
+
   return <SignInForm />;
 }

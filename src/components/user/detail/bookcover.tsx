@@ -4,7 +4,7 @@ import Image from "next/image";
 export default function BookCover({ src }: { src: string }) {
   return (
     <div className="w-full md:w-1/3 flex justify-center">
-      <Image
+      <img
         src={src}
         width={300}
         height={420}

@@ -4,138 +4,78 @@ import { ApexOptions } from "apexcharts";
 import dynamic from "next/dynamic";
 import ChartTab from "../ChartTab";
 
-// Dynamic import ApexChart
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
 });
 
 export default function StatisticsChart() {
-  const [activeTab, setActiveTab] = useState<"weekly" | "monthly">("weekly");
+  const [activeTab, setActiveTab] = useState("weekly");
 
-  // ==========================
-  //  OPTIONS (STATIC CONFIG)
-  // ==========================
-  const options: ApexOptions = {
-    legend: { show: false },
-    colors: ["#465FFF", "#9CB9FF"],
+  const baseOptions: ApexOptions = {
+    colors: ["#FFC428"],
     chart: {
       fontFamily: "Outfit, sans-serif",
       height: 310,
-      type: "area",
       toolbar: { show: false },
     },
-    stroke: {
-      curve: "smooth",
-      width: 2,
-    },
+    stroke: { curve: "smooth", width: 2, colors: ["#1A1A1A"] },
     fill: {
       type: "gradient",
       gradient: {
-        opacityFrom: 0.5,
-        opacityTo: 0,
+        shadeIntensity: 0.7,
+        opacityFrom: 0.7,
+        opacityTo: 0.0,
+        stops: [0, 100],
       },
     },
-    markers: {
-      size: 0,
-      hover: { size: 5 },
-    },
-    grid: {
-      yaxis: { lines: { show: true } },
-      xaxis: { lines: { show: false } },
-    },
     dataLabels: { enabled: false },
-    tooltip: { enabled: true },
-    yaxis: {
-      labels: { style: { fontSize: "12px", colors: ["#6B7280"] } },
-    },
+    grid: { borderColor: "#EEE" },
+    tooltip: { theme: "dark" },
   };
 
-  // ==========================
-  //  WEEKLY CHART
-  // ==========================
-  const weeklyOptions: ApexOptions = {
-    ...options,
-    xaxis: {
-      categories: ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"],
-      axisBorder: { show: false },
-      axisTicks: { show: false },
+  const weekly = {
+    options: {
+      ...baseOptions,
+      xaxis: {
+        categories: ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"],
+        labels: { style: { colors: "#1A1A1A" } },
+      },
     },
+    series: [{ name: "Peminjaman", data: [12, 15, 18, 13, 20, 17, 22] }],
   };
 
-  const weeklySeries = [
-    {
-      name: "Peminjaman",
-      data: [12, 15, 18, 13, 20, 17, 22],
+  const monthly = {
+    options: {
+      ...baseOptions,
+      xaxis: {
+        categories: [
+          "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
+          "Jul", "Agu", "Sep", "Okt", "Nov", "Des",
+        ],
+        labels: { style: { colors: "#1A1A1A" } },
+      },
     },
-  ];
-
-  // ==========================
-  //  MONTHLY CHART
-  // ==========================
-  const monthlyOptions: ApexOptions = {
-    ...options,
-    xaxis: {
-      categories: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "Mei",
-        "Jun",
-        "Jul",
-        "Agu",
-        "Sep",
-        "Okt",
-        "Nov",
-        "Des",
-      ],
-    },
+    series: [{ name: "Peminjaman", data: [140,110,120,180,200,190,210,250,240,260,280,300] }],
   };
 
-  const monthlySeries = [
-    {
-      name: "Peminjaman",
-      data: [140, 110, 120, 180, 200, 190, 210, 250, 240, 260, 280, 300],
-    },
-  ];
-
-  // ==========================
-  //  RENDER CHART BERDASARKAN TAB
-  // ==========================
-  const currentChart = {
-    options: activeTab === "weekly" ? weeklyOptions : monthlyOptions,
-    series: activeTab === "weekly" ? weeklySeries : monthlySeries,
-  };
+  const chart = activeTab === "weekly" ? weekly : monthly;
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white px-5 pb-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
-      {/* HEADER */}
-      <div className="flex flex-col gap-5 mb-6 sm:flex-row sm:justify-between">
-        <div className="w-full">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-            Grafik Aktivitas Peminjaman
-          </h3>
-          <p className="mt-1 text-gray-500 text-theme-sm dark:text-gray-400">
-            Aktivitas peminjaman berdasarkan minggu & bulan
-          </p>
-        </div>
-
-        {/* TAB (Weekly / Monthly) */}
-        <div className="flex items-start w-full sm:justify-end">
-          <ChartTab active={activeTab} setActive={setActiveTab} />
-        </div>
+    <div className="rounded-2xl border border-[#FFC428] bg-[#FFF8E7] dark:bg-white/[0.03] dark:border-[#333333] p-6 shadow-md">
+      <div className="flex justify-between mb-6">
+        <h3 className="text-lg font-semibold text-[#FFC428]">
+          Grafik Aktivitas Peminjaman
+        </h3>
+        <ChartTab active={activeTab} setActive={setActiveTab} />
       </div>
 
-      {/* CHART */}
-      <div className="max-w-full overflow-x-auto custom-scrollbar">
-        <div className="min-w-[1000px] xl:min-w-full">
-          <ReactApexChart
-            options={currentChart.options}
-            series={currentChart.series}
-            type="area"
-            height={310}
-          />
-        </div>
+      <div>
+        <ReactApexChart
+          options={chart.options}
+          series={chart.series}
+          type="area"
+          height={310}
+        />
       </div>
     </div>
   );

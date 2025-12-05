@@ -1,4 +1,4 @@
-'use client'
+"use client"
 import Link from "next/link"
 
 interface CTAButtonProps {
@@ -9,29 +9,35 @@ interface CTAButtonProps {
 }
 
 export default function CTAButton({ href, text, variant = "primary", onClick }: CTAButtonProps) {
-  const baseStyle =
-    "px-8 py-3 font-semibold rounded-full transition duration-300 cursor-pointer border"
+  const baseStyle = `
+    px-8 py-3 font-semibold rounded-full transition duration-300 cursor-pointer border
+  `
 
   const styles =
     variant === "primary"
       ? `
-          bg-[var(--color-primary)] 
-          text-black 
-          border-transparent
-          hover:bg-transparent 
-          hover:text-[var(--color-primary)] 
-          hover:border-[var(--color-primary)]
-          dark:text-black 
-          dark:hover:text-[var(--color-primary)]
-        `
+        bg-[var(--color-primary)]
+        text-[var(--color-dark)]
+        border-transparent
+
+        hover:bg-[color-mix(in srgb, var(--color-primary) 90%, #ffffff)]
+        hover:border-[var(--color-foreground)]
+        hover:text-[var(--color-dark)]
+
+        dark:bg-white
+        dark:text-black
+      `
       : `
-          bg-transparent 
-          border-[var(--color-primary)] 
-          text-[var(--color-primary)] 
-          hover:bg-[var(--color-primary)] 
-          hover:text-black
-          dark:text-[var(--color-primary)]
-        `
+        bg-transparent
+        border-[var(--color-foreground)]
+        text-[var(--color-foreground)]
+
+        hover:bg-[var(--color-foreground)]
+        hover:text-black
+
+        dark:border-[var(--color-foreground)]
+        dark:text-[var(--color-foreground)]
+      `
 
   const className = `${baseStyle} ${styles}`
 

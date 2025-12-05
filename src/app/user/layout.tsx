@@ -1,9 +1,9 @@
 "use client";
 
 import { useSidebar } from "@/context/SidebarContext";
-import UserHeader from "@/layout/admin/AppHeader";
-import UserSidebar from "@/layout/admin/AppSidebar";
-import UserBackdrop from "@/layout/admin/Backdrop";
+import UserHeader from "@/layout/user/UserHeader";
+import UserSidebar from "@/layout/user/UserSidebar";
+import UserBackdrop from "@/layout/user/UserBackdrop";
 import React from "react";
 
 export default function UserLayout({
@@ -21,7 +21,7 @@ export default function UserLayout({
     : "lg:ml-[90px]";
 
   return (
-    <div className="min-h-screen xl:flex">
+    <div className="min-h-screen xl:flex bg-white border-[#FFE7B3] dark:bg-[#1A1A1A] dark:border-[#333333]">
       {/* Sidebar and Backdrop */}
       <UserSidebar />
       <UserBackdrop />

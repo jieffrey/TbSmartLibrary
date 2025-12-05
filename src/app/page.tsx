@@ -23,83 +23,86 @@ const Hero: React.FC = () => {
     return (
         <div className="overflow-x-hidden">
             <section
-    id="home"
-    className="relative h-screen flex flex-col items-center justify-center text-center overflow-hidden
-    bg-white dark:bg-gray-950 transition-colors duration-300"
+  id="home"
+  className="relative h-screen flex flex-col items-center justify-center text-center overflow-hidden
+  bg-[#FFF8E7] dark:bg-[#1A1A1A] transition-colors duration-300"
 >
-    {/* Navbar */}
-    <Navbar />
+  {/* Navbar */}
+  <Navbar />
 
-    {/* ====== Background Image ====== */}
-    <div
-        className="
-            absolute inset-0 bg-cover bg-center 
-            brightness-100 dark:brightness-[0.45] 
-            transition-all duration-500
-        "
-        style={{ backgroundImage: "url('/images/hero/bgHero.png')" }}
-    />
+  {/* Background Image */}
+  <div
+    className="
+      absolute inset-0 bg-cover bg-center 
+      opacity-90 dark:opacity-60
+      transition-all duration-500
+    "
+    style={{ backgroundImage: "url('/images/hero/bgHero.png')" }}
+  />
 
-    {/* ====== Light & Dark Gradient Overlay ====== */}
-    <div className="
-        absolute inset-0 
-        bg-gradient-to-b
-        from-sky-400/60 via-sky-300/40 to-white/10
-        dark:from-gray-900/70 dark:via-gray-900/60 dark:to-gray-950/30
-        transition-all duration-500
-    " />
+  {/* Gradient Overlay */}
+  <div className="
+    absolute inset-0 
+    bg-gradient-to-b
+    from-[#FFF8E7]/80 via-[#FFF8E7]/40 to-[#FFF8E7]/10
+    dark:from-[#1A1A1A]/80 dark:via-[#1A1A1A]/60 dark:to-[#1A1A1A]/20
+    transition-all duration-500
+  " />
 
-    {/* ====== Hero Content ====== */}
-    <div className="z-10 px-6 sm:px-12">
-        <h1 className="
-            text-5xl sm:text-7xl font-bold leading-tight drop-shadow-lg
-            text-white dark:text-white
-        ">
-            Belajar Tanpa Batas
-        </h1>
+  {/* Hero Content */}
+  <div className="z-10 px-6 sm:px-12">
+    <h1
+      className="
+        text-5xl sm:text-7xl font-extrabold leading-tight 
+        text-[#1A1A1A] dark:text-[#FFC428]
+      "
+    >
+      Belajar Tanpa Batas
+    </h1>
 
-        <p className="
-            text-xl font-medium mb-8 drop-shadow-md
-            text-white dark:text-gray-300
-        ">
-            Temukan ilmu, bukan hanya buku.
-        </p>
+    <p
+      className="
+        text-lg sm:text-xl mt-2 mb-8 font-medium
+        text-[#1A1A1A]/80 dark:text-[#FFF8E7]/80
+      "
+    >
+      Temukan ilmu, bukan hanya buku.
+    </p>
 
-        <div className="flex flex-col sm:flex-row justify-center gap-4">
-            {/* Tombol 1 */}
-            <Link href="#catalog">
-                <ShineButton
-                    label="Lihat Katalog"
-                    size="lg"
-                    bgColor="linear-gradient(325deg, hsl(217 100% 56%) 0%, hsl(194 100% 69%) 55%, hsl(217 100% 56%) 90%)"
-                    onClick={() => console.log("Lihat Katalog clicked!")}
-                />
-            </Link>
+    <div className="flex flex-col sm:flex-row justify-center gap-4">
+      {/* Tombol Lihat Katalog */}
+      <Link href="#catalog">
+        <ShineButton
+          label="Lihat Katalog"
+          size="lg"
+          bgColor="linear-gradient(325deg, #FFC428 0%, #FFD56B 60%, #FFC428 100%)"
+        />
+      </Link>
 
-            {/* Tombol 2 */}
-            <Link href="full-width-pages/auth/signup">
-                <ShineButton
-                    label="Pinjam Sekarang"
-                    size="lg"
-                    bgColor="linear-gradient(325deg, hsl(217 100% 56%) 0%, hsl(194 100% 69%) 55%, hsl(217 100% 56%) 90%)"
-                    onClick={() => console.log("Pinjam Sekarang clicked!")}
-                />
-            </Link>
-        </div>
+      {/* Tombol Pinjam */}
+      <Link href="full-width-pages/auth/signup">
+        <ShineButton
+          label="Pinjam Sekarang"
+          size="lg"
+          bgColor="linear-gradient(325deg, #FFC428 0%, #FFD56B 60%, #FFC428 100%)"
+        />
+      </Link>
     </div>
+  </div>
 </section>
+
 
 <section 
   id="catalog" 
   className="
     py-20 text-center inset-0 
     bg-gradient-to-b 
-    from-sky-400/60 via-sky-300/40 to-white/10
-    dark:from-[#4298b0]/60 dark:via-[#2e4e5a]/40 dark:to-black/40
+    from-[var(--color-primary)]/40 via-white/10 to-white/0
+    dark:from-[#2a2a2a] dark:via-[#1f1f1f] dark:to-black
   "
 >
     <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-white">
-        Koleksi Buku <span className="text-[var(--color-primary)]">Unggulan</span>
+        Koleksi Buku <span className="text-[var(--color-foreground)]">Unggulan</span>
     </h2>
 
     <p className="text-gray-600 dark:text-gray-400 mb-10">
@@ -117,59 +120,74 @@ const Hero: React.FC = () => {
     </div>
 </section>
 
-{/* fitur section */}
-            <section className="w-full py-20 bg-gradient-to-b from-white to-blue-50 dark:from-gray-900 dark:to-black text-center">
+    {/* fitur section */}
+    <section className="
+      w-full py-20 
+      bg-gradient-to-b 
+      from-[var(--color-primary)]/60 to-white
+      dark:from-[#1A1A1A] dark:to-black 
+      text-center
+    ">
       <motion.h2
         initial={{ opacity: 0, y: -40 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         viewport={{ once: true }}
-        className="text-3xl font-bold mb-12"
+        className="text-3xl font-bold mb-12 text-[var(--color-dark)] dark:text-white"
       >
-        Fitur <span className="text-sky-600 dark:text-sky-400">Unggulan</span>
+        Fitur <span className="text-[var(--color-foreground)]">Unggulan</span>
       </motion.h2>
 
       <FeatureList />
     </section>
 
-{/* countup section */}
-    <section className="w-full py-24 bg-gradient-to-b from-blue-50 to-white dark:from-gray-950 dark:to-gray-900 text-center">
-      <motion.h2
-        initial={{ opacity: 0, y: -40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        viewport={{ once: true }}
-        className="text-3xl font-bold mb-12"
-      >
-        Statistik <span className="text-sky-600 dark:text-sky-400">Perpustakaan</span>
-      </motion.h2>
 
-      <StatList />
-    </section>
+{/* countup section */}
+<section className="
+  w-full py-24 
+  bg-gradient-to-b 
+  from-[var(--color-primary)]/50 to-white
+  dark:from-[#1A1A1A] dark:to-black
+  text-center
+">
+  <motion.h2
+    initial={{ opacity: 0, y: -40 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.6 }}
+    viewport={{ once: true }}
+    className="text-3xl font-bold mb-12 text-[var(--color-dark)] dark:text-white"
+  >
+    Statistik <span className="text-[var(--color-foreground)]">Perpustakaan</span>
+  </motion.h2>
+
+  <StatList />
+</section>
 
     {/* ajakan section */}
     <section
   id="tentang"
   className="
     relative w-full py-32 
-    bg-gradient-to-br 
-    from-sky-500 via-sky-400 to-blue-600
-    dark:from-[#0b2239] dark:via-[#0a1a2b] dark:to-black
-    text-center text-white overflow-hidden
+    bg-gradient-to-br
+    from-[var(--color-primary)] via-white to-[var(--color-primary)]
+    dark:from-[var(--color-dark)] dark:via-black dark:to-[#0d0d0d]
+    text-center 
+    text-[var(--color-dark)] dark:text-white 
+    overflow-hidden
   "
 >
   {/* Background image */}
   <div
     className="
-      absolute inset-0 bg-[url('/images/hero/bgHero.png')] 
+      absolute inset-0 bg-[url('/images/hero/bgHero.png')]
       bg-cover bg-center 
-      opacity-20 
+      opacity-15 
       dark:opacity-10
     "
   ></div>
 
-  {/* Overlay */}
-  <div className="absolute inset-0 bg-black/20 dark:bg-black/40"></div>
+  {/* Soft overlay */}
+  <div className="absolute inset-0 bg-white/40 dark:bg-black/40"></div>
 
   {/* Konten utama */}
   <motion.div
@@ -179,13 +197,16 @@ const Hero: React.FC = () => {
     viewport={{ once: true }}
     className="relative z-10 container mx-auto px-6"
   >
-    <h2 className="text-4xl md:text-5xl font-bold mb-6 drop-shadow-lg">
+    <h2 className="
+      text-4xl md:text-5xl font-bold mb-6 
+      drop-shadow-[0_2px_6px_rgba(255,196,40,0.35)]
+    ">
       Bergabunglah dengan
-      <span className="text-yellow-300 dark:text-yellow-400"> ribuan pelajar</span>
+      <span className="text-[var(--color-foreground)]"> ribuan pelajar</span>
       <br /> yang telah menemukan dunia ilmu baru!
     </h2>
 
-    <p className="text-lg mb-10 text-white/90 dark:text-gray-300 max-w-2xl mx-auto">
+    <p className="text-lg mb-10 text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
       Jadilah bagian dari komunitas Smart Eduverse dan rasakan pengalaman belajar tanpa batas.
     </p>
 
@@ -194,6 +215,7 @@ const Hero: React.FC = () => {
     </div>
   </motion.div>
 </section>
+
 
 
     <section id="contact">

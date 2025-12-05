@@ -1,129 +1,93 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-
-const formSchema = z.object({
-  name: z.string().min(2, "Nama terlalu pendek"),
-  email: z.string().email("Email tidak valid"),
-  message: z.string().min(5, "Pesan terlalu singkat"),
-});
-
 export default function ContactForm() {
-  const form = useForm({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      message: "",
-    },
-  });
-
-  const onSubmit = (values: any) => {
-    console.log(values);
-    alert("Pesan berhasil dikirim!");
-  };
-
   return (
-    <Card className="
-      w-full max-w-md mx-auto shadow-lg
-      border border-gray-200 dark:border-white/10
-      bg-white dark:bg-gray-900/60 backdrop-blur
+    <div className="
+      bg-white 
+      rounded-2xl 
+      p-8 
+      shadow-[0_4px_20px_rgba(0,0,0,0.06)]
+      border border-[#fff1c9]
+      w-full
     ">
-      <CardHeader>
-        <CardTitle className="text-2xl text-center font-bold text-[var(--color-primary)]">
-          Hubungi Kami
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* Nama */}
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-gray-700 dark:text-gray-300">
-                    Nama Lengkap
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Masukkan nama kamu"
-                      className="dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+      
+      <h3 className="text-2xl font-bold text-[#1A1A1A] mb-6">
+        Hubungi Kami
+      </h3>
 
-            {/* Email */}
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-gray-700 dark:text-gray-300">
-                    Email
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Masukkan email kamu"
-                      className="dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+      {/* input group */}
+      <div className="space-y-5">
 
-            {/* Pesan */}
-            <FormField
-              control={form.control}
-              name="message"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-gray-700 dark:text-gray-300">
-                    Pesan
-                  </FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Tulis pesan kamu di sini..."
-                      className="resize-none dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        <div>
+          <label className="text-sm text-[#1A1A1A] font-medium">
+            Nama Lengkap
+          </label>
+          <input
+            className="
+              mt-2 w-full p-3 rounded-lg 
+              bg-[#fff8e7] 
+              border border-[#ffe7b8] 
+              placeholder:text-gray-400 
+              focus:outline-none 
+              focus:ring-2 
+              focus:ring-[#FFC428]/40
+            "
+            placeholder="Masukkan nama kamu"
+          />
+        </div>
 
-            {/* Tombol */}
-            <Button
-              type="submit"
-              className="w-full bg-[var(--color-primary)] text-black font-semibold dark:text-black"
-            >
-              Kirim Pesan
-            </Button>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+        <div>
+          <label className="text-sm text-[#1A1A1A] font-medium">
+            Email
+          </label>
+          <input
+            className="
+              mt-2 w-full p-3 rounded-lg 
+              bg-[#fff8e7] 
+              border border-[#ffe7b8] 
+              placeholder:text-gray-400 
+              focus:outline-none 
+              focus:ring-2 
+              focus:ring-[#FFC428]/40
+            "
+            placeholder="Masukkan email kamu"
+          />
+        </div>
+
+        <div>
+          <label className="text-sm text-[#1A1A1A] font-medium">
+            Pesan
+          </label>
+          <textarea
+            rows={4}
+            className="
+              mt-2 w-full p-3 rounded-lg 
+              bg-[#fff8e7] 
+              border border-[#ffe7b8] 
+              placeholder:text-gray-400 
+              focus:outline-none 
+              focus:ring-2 
+              focus:ring-[#FFC428]/40
+            "
+            placeholder="Tulis pesan kamu di sini…"
+          ></textarea>
+        </div>
+
+        <button
+          className="
+            w-full py-3 mt-2 
+            bg-[#1A1A1A] 
+            text-white 
+            rounded-lg 
+            font-semibold 
+            hover:bg-[#FFC428] 
+            hover:text-[#1A1A1A]
+            transition-all duration-200
+          "
+        >
+          Kirim Pesan
+        </button>
+      </div>
+    </div>
   );
 }

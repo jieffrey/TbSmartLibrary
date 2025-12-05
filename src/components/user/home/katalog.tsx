@@ -1,21 +1,29 @@
 "use client";
-import BookCard from "./card";
+
+import { useEffect, useState } from "react";
+import { BookCard } from "./card";
 
 export default function BookCatalog({ searchQuery }) {
-  // ini nanti dihubungkan ke API / Supabase
-  const allBooks = [
-    { id: 1, title: "Atomic Habits", cover: "/books/atomic.png" },
-    { id: 2, title: "Deep Work", cover: "/books/deep.png" },
-    { id: 3, title: "Ego is The Enemy", cover: "/books/ego.png" }
-  ];
+  const [books, setBooks] = useState([]);
 
-  const filtered = allBooks.filter((b) =>
-    b.title.toLowerCase().includes(searchQuery.toLowerCase())
+  useEffect(() => {
+    fetch("/api/books")
+      .then((res) => res.json())
+      .then((result) => setBooks(result.data || [])) // FIX: ambil array
+      .catch((err) => console.error("BOOK FETCH ERROR:", err));
+  }, []);
+
+  // Pastikan searchQuery aman / tidak undefined
+  const q = (searchQuery || "").toLowerCase();
+
+  // Filter berdasarkan judul (atau bisa tambah penulis)
+  const filtered = books.filter((b) =>
+    b.judul.toLowerCase().includes(q)
   );
 
   return (
-    <div>
-      <h3 className="text-lg font-semibold text-[#294B29] dark:text-[#D2E3C8]">
+    <div className="mt-6">
+      <h3 className="text-lg font-semibold dark:text-[#FFC248] text-black">
         Katalog Lengkap
       </h3>
 

@@ -8,9 +8,12 @@ const UserBackdrop: React.FC = () => {
 
   return (
     <div
-      className="fixed inset-0 z-40 bg-gray-900/50 lg:hidden"
-      onClick={toggleMobileSidebar}
-    />
+  className="fixed inset-0 z-40 lg:hidden
+  bg-[#1A1A1A]/60 backdrop-blur-sm
+  transition"
+  onClick={toggleMobileSidebar}
+/>
+
   );
 };
 

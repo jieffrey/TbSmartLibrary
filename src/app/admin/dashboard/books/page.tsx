@@ -1,36 +1,48 @@
 
-import type { Metadata } from "next";
-import React from "react";
-import AddBookPage from "@/components/admin/manajemen-buku/AddBook";
-import EditBookPage from "@/components/admin/manajemen-buku/EditBook";
-import BookForm from "@/components/admin/manajemen-buku/BookForm";
+import { getAllBooks } from "@/app/api/books/route";
+import { Plus } from "lucide-react";
+import Link from "next/link";
 import BookTable from "@/components/admin/manajemen-buku/BookTable";
 
-export const metadata: Metadata = {
-  title:
-    "Next.js E-commerce Dashboard | TailAdmin - Next.js Dashboard Template",
-  description: "This is Next.js Home for TailAdmin Dashboard Template",
-};
+export default async function BooksPage() {
+  const result = await getAllBooks();
 
-export default function Ecommerce() {
   return (
-    <div className="grid grid-cols-12 gap-4 md:gap-6">
-      <div className="col-span-12 space-y-6 xl:col-span-7">
-        <BookTable/>
-        
+    <div className="p-6 md:p-8 max-w-7xl mx-auto">
+      {/* HEADER */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">
+            Kelola Buku
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            Tambah, edit, dan hapus buku perpustakaan
+          </p>
+        </div>
+
+        {/* BUTTON TAMBAH */}
+        <Link
+          href="/admin/books/add"
+          className="px-6 py-3 rounded-xl bg-[#FFC428] text-black font-semibold
+            hover:bg-[#FFD666] hover:shadow-lg hover:scale-[1.02]
+            transition-all duration-200 flex items-center gap-2 w-full sm:w-auto justify-center"
+        >
+          <Plus size={20} />
+          Tambah Buku
+        </Link>
       </div>
 
-      <div className="col-span-12 xl:col-span-5">
-        <BookForm/>
+      {/* ERROR STATE */}
+      {!result.success && (
+        <div className="rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4 mb-6">
+          <p className="text-red-700 dark:text-red-400 font-medium">
+            ⚠️ {result.error}
+          </p>
+        </div>
+      )}
 
-      </div>
-
-      <div className="col-span-12">
-        {/* <AddBookPage/> */}
-      </div>
-      <div className="col-span-12">
-        {/* <EditBookPage/> */}
-      </div>
+      {/* TABLE */}
+      {result.success && <BookTable books={result.data || []} />}
     </div>
   );
 }

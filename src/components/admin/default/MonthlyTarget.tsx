@@ -5,6 +5,7 @@ import { Dropdown } from "@/components/ui/dropdown/Dropdown";
 import { MoreDotIcon } from "@/icons";
 import { useState } from "react";
 import { DropdownItem } from "@/components/ui/dropdown/DropdownItem";
+
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
 });
@@ -13,7 +14,7 @@ export default function MonthlyTarget() {
   const series = [75.55];
 
   const options: ApexOptions = {
-    colors: ["#465FFF"],
+    colors: ["#FFC428"],
     chart: {
       fontFamily: "Outfit, sans-serif",
       type: "radialBar",
@@ -26,108 +27,69 @@ export default function MonthlyTarget() {
         endAngle: 85,
         hollow: { size: "80%" },
         track: {
-          background: "#E4E7EC",
-          strokeWidth: "100%",
-          margin: 5,
+          background: "#FFF8E7",
         },
         dataLabels: {
           name: { show: false },
           value: {
             fontSize: "36px",
-            fontWeight: "600",
+            fontWeight: "700",
             offsetY: -40,
-            color: "#1D2939",
+            color: "#1A1A1A",
             formatter: (val) => `${val}%`,
           },
         },
       },
     },
-    fill: { type: "solid", colors: ["#465FFF"] },
-    stroke: { lineCap: "round" },
-    labels: ["Progress"],
+    stroke: { lineCap: "round", colors: ["#1A1A1A"] },
   };
 
   const [isOpen, setIsOpen] = useState(false);
-  const toggleDropdown = () => setIsOpen(!isOpen);
-  const closeDropdown = () => setIsOpen(false);
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-white/[0.03]">
-      <div className="px-5 pt-5 bg-white shadow-default rounded-2xl pb-11 dark:bg-gray-900 sm:px-6 sm:pt-6">
+    <div className="rounded-2xl border border-[#FFC428] bg-[#FFF8E7] dark:bg-white/[0.03] dark:border-[#333333] shadow-md">
+      <div className="px-5 pt-5 pb-11">
         <div className="flex justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+            <h3 className="text-lg font-semibold text-[#1A1A1A] dark:text-[#FFF8E7]">
               Target Peminjaman
             </h3>
-            <p className="mt-1 font-normal text-gray-500 text-theme-sm dark:text-gray-400">
-              Target yang kamu tetapkan setiap minggu dan bulan
+            <p className="mt-1 text-gray-700 text-sm">
+              Target mingguan & bulanan
             </p>
           </div>
 
-          {/* Dropdown */}
-          <div className="relative inline-block">
-            <button onClick={toggleDropdown}>
-              <MoreDotIcon className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300" />
-            </button>
-            <Dropdown isOpen={isOpen} onClose={closeDropdown} className="w-40 p-2">
-              <DropdownItem
-                tag="a"
-                onItemClick={closeDropdown}
-                className="flex w-full text-gray-500 rounded-lg hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5"
-              >
-                Lihat Detail
-              </DropdownItem>
-            </Dropdown>
-          </div>
+          <button onClick={() => setIsOpen(!isOpen)}>
+            <MoreDotIcon className="text-[#1A1A1A]" />
+          </button>
+
+          <Dropdown isOpen={isOpen} onClose={() => setIsOpen(false)} className="w-40 p-2">
+            <DropdownItem onItemClick={() => setIsOpen(false)}>Lihat Detail</DropdownItem>
+          </Dropdown>
         </div>
 
-        {/* Chart */}
         <div className="relative">
-          <div className="max-h-[330px]">
-            <ReactApexChart options={options} series={series} type="radialBar" height={330} />
-          </div>
-
-          <span className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-[95%] rounded-full bg-success-50 px-3 py-1 text-xs font-medium text-success-600 dark:bg-success-500/15 dark:text-success-500">
+          <ReactApexChart options={options} series={series} type="radialBar" height={330} />
+          <span className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-[95%] bg-white px-3 py-1 rounded-full text-xs font-medium text-[#1A1A1A]">
             +10%
           </span>
         </div>
-
-        <p className="mx-auto mt-10 w-full max-w-[380px] text-center text-sm text-gray-500 sm:text-base">
-          Aktivitas peminjaman minggu ini meningkat dibanding bulan lalu. Pertahankan!
-        </p>
       </div>
 
-      {/* Bottom Stats */}
-      <div className="flex items-center justify-center gap-5 px-6 py-3.5 sm:gap-8 sm:py-5">
-        <div>
-          <p className="mb-1 text-center text-gray-500 text-theme-xs dark:text-gray-400 sm:text-sm">
-            Target Mingguan
-          </p>
-          <p className="text-base font-semibold text-center text-gray-800 dark:text-white/90 sm:text-lg">
-            120 Peminjaman
-          </p>
+      <div className="flex justify-center gap-8 px-6 py-5 text-[#1A1A1A] dark:text-[#FFF8E7]">
+        <div className="text-center">
+          <p className="text-sm">Weekly</p>
+          <p className="font-semibold">120</p>
         </div>
-
-        <div className="w-px bg-gray-200 h-7 dark:bg-gray-800"></div>
-
-        <div>
-          <p className="mb-1 text-center text-gray-500 text-theme-xs dark:text-gray-400 sm:text-sm">
-            Target Bulanan
-          </p>
-          <p className="text-base font-semibold text-center text-gray-800 dark:text-white/90 sm:text-lg">
-            480 Peminjaman
-          </p>
+        <div className="w-px bg-[#FFC428]"></div>
+        <div className="text-center">
+          <p className="text-sm">Monthly</p>
+          <p classnmae="font-semibold">480</p>
         </div>
-
-        <div className="w-px bg-gray-200 h-7 dark:bg-gray-800"></div>
-
-        <div>
-          <p className="mb-1 text-center text-gray-500 text-theme-xs dark:text-gray-400 sm:text-sm">
-            Hari Ini
-          </p>
-          <p className="text-base font-semibold text-center text-gray-800 dark:text-white/90 sm:text-lg">
-            22 Peminjaman
-          </p>
+        <div className="w-px bg-[#FFC428]"></div>
+        <div className="text-center">
+          <p className="text-sm">Today</p>
+          <p className="font-semibold">22</p>
         </div>
       </div>
     </div>
