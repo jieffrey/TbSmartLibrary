@@ -24,7 +24,7 @@ export default async function BookDetailPage({ params }: any) {
             rating={book.rating || "4.8"}
           />
 
-          <BookActions bookId={id} />
+          <BookActions {...book} id={id} />
 
           <BookMeta
             category={book.kategori}

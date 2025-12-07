@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
         id,
         tanggal_pinjam,
         batas_kembali,
-        books:book_id ( judul )
+        books:book_id ( id, judul, penulis, image_url )
       `)
       .eq("user_id", session.user.id)
       .eq("status", "dipinjam");

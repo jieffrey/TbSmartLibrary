@@ -90,7 +90,7 @@ const AppHeader: React.FC = () => {
         >
           <div className="flex items-center gap-2">
             <ThemeToggleButton />
-            <NotificationDropdown />
+            {/* <NotificationDropdown /> */}
           </div>
           <UserDropdown />
         </div>

@@ -43,46 +43,29 @@ export async function GET(
   }
 }
 
-
-export async function PATCH(req: NextRequest, context: { params: Promise<{ id: string }> }) {
+export async function PATCH(req: NextRequest) {
   try {
-    const supabase = await createServerSupabaseClient()
-    const admin = await isAdmin(supabase)
-    if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
-
-    const { id } = await context.params  // FIX
-    const numericId = Number(id)
-
-    if (Number.isNaN(numericId)) {
-      return NextResponse.json({ error: 'Invalid id' }, { status: 400 })
-    }
-
-    console.log("USER:", await supabase.auth.getUser())
-    const body = await req.json()
-
-    if (body.regenerate_qr) {
-      body.qr_code = crypto.createHash('md5')
-        .update(String(id) + Date.now().toString())
-        .digest('hex')
-    }
-
-    body.updated_at = new Date().toISOString()
+    const supabase = await createServerSupabaseClient();
+    const url = new URL(req.url);
+    const id = url.pathname.split("/").pop(); // ambil id dari URL
+    const body = await req.json();
 
     const { data, error } = await supabase
-      .from('books')
-      .update(body)
-      .eq('id', numericId)
+      .from("books")
+      .update({ ...body, updated_at: new Date().toISOString() })
+      .eq("id", Number(id))
       .select()
-      .single()
+      .single();
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    if (error) throw error;
 
-    return NextResponse.json({ data })
+    // Pastikan response berbentuk object { success: true, data }
+    return NextResponse.json({ success: true, data });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    console.error("PATCH error:", err);
+    return NextResponse.json({ success: false, error: err.message });
   }
 }
-
 export async function DELETE(req: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
     const supabase = await createServerSupabaseClient()
@@ -104,3 +87,4 @@ export async function DELETE(req: NextRequest, context: { params: Promise<{ id: 
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }
+

@@ -28,9 +28,11 @@ export default function BookCatalog({ searchQuery }) {
       </h3>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3">
-        {filtered.map((b) => (
-          <BookCard key={b.id} data={b} />
-        ))}
+        {books?.map((book) => (
+  <BookCard key={book.id} book={book} />
+))}
+
+
       </div>
     </div>
   );

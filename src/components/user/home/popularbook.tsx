@@ -27,9 +27,10 @@ export function PopularBooks() {
       </h3>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3">
-        {books.map((b) => (
-          <BookCard key={b.id} data={b} />
-        ))}
+        {books?.map((book: any) => (
+  <BookCard key={book.id} book={book} />
+))}
+
       </div>
     </div>
   );

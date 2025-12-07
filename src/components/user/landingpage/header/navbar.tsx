@@ -175,7 +175,7 @@ const Navbar: React.FC = () => {
               ))}
 
               <Link
-                href="/login"
+                href="/full-width-pages/auth/signin"
                 className="
                   text-lg font-medium
                   hover:underline hover:underline-offset-4       /* ⭐ konsisten */

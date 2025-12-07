@@ -3,11 +3,14 @@
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 
-export function BookCard({ data }) {
+export function BookCard({ book }: any) {
   const router = useRouter();
 
+  console.log("BOOKCARD RECEIVED", book);
+  if (!book) return null
+
   const handlePinjam = () => {
-    router.push(`/user/book/${data.id}`);
+    router.push(`/user/book/${book.id}`);
   };
 
   return (
@@ -16,23 +19,25 @@ export function BookCard({ data }) {
       transition={{ type: "spring", stiffness: 200, damping: 12 }}
       className="bg-white dark:bg-[#181818] rounded-2xl shadow-sm hover:shadow-md border border-gray-100 dark:border-neutral-800 overflow-hidden cursor-pointer"
     >
-      {/* Image */}
       <div className="w-full h-44 overflow-hidden">
         <img
-          src={data.image_url}
-          alt={data.judul}
+          src={book.image_url || "/placeholder.png"}
+          alt={book.judul}
           className="w-full h-full object-cover rounded-t-2xl"
         />
       </div>
 
-      {/* Content */}
       <div className="p-4">
         <p className="font-semibold text-black dark:text-white text-sm line-clamp-2 leading-snug">
-          {data.judul}
+          {book.judul}
         </p>
 
         <p className="text-xs mt-1 text-gray-500 dark:text-gray-400">
-          {data.penulis}
+          {book.penulis}
+        </p>
+
+        <p className="text-xs mt-1 text-gray-400 dark:text-gray-500">
+          Lokasi: {book?.rack?.kode || "-"} ({book?.rack?.deskripsi || "-"})
         </p>
 
         <button

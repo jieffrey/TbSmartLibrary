@@ -109,7 +109,7 @@ export default function UserInfoCard() {
                   Social Links
                 </h5>
 
-                <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                {/* <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                   <div>
                     <Label>Facebook</Label>
                     <Input
@@ -138,7 +138,7 @@ export default function UserInfoCard() {
                       defaultValue="https://instagram.com/PimjoHQ"
                     />
                   </div>
-                </div>
+                </div> */}
               </div>
               <div className="mt-7">
                 <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">

@@ -15,19 +15,41 @@ export default function HistoryPage() {
     );
 
     async function loadHistory() {
+      // Get current user session
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        console.error("No session found");
+        return;
+      }
+
       const { data, error } = await supabase
         .from("peminjaman")
-  .select("*");
+        .select(`
+          *,
+          books:book_id (
+            id,
+            judul,
+            penulis,
+            image_url
+          )
+        `)
+        .eq("user_id", session.user.id)
+        .order("created_at", { ascending: false });
 
-      if (error) console.error(error);
-      else setHistory(data || []);
+      if (error) {
+        console.error("Error loading history:", error);
+      } else {
+        console.log("History loaded:", data);
+        setHistory(data || []);
+      }
     }
 
     loadHistory();
   }, []);
 
   function openDetail(item: any) {
-    alert("Detail transaksi: " + item.books.title);
+    alert("Detail transaksi: " + item.books.judul);
   }
 
   return (

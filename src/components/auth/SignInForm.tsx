@@ -6,11 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client"; // ← Import client
+import { createBrowserSupabase } from "@/lib/supabase/client"; // ← Import client
 
 export default function SignInForm() {
   const router = useRouter();
-  const supabase = createClient(); // ← Create supabase instance
   
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -26,66 +25,41 @@ export default function SignInForm() {
 
     try {
       // 1. LOGIN KE SUPABASE AUTH
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
-      });
+      const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
 
-      console.log("✅ LOGIN DATA:", authData);
-      console.log("❌ LOGIN ERROR:", authError);
+    const data = await res.json();
+    console.log("===DATA===", data)
 
-      if (authError) {
-        // Translate error messages ke Bahasa Indonesia
-        const errorMessages: Record<string, string> = {
-          "Invalid login credentials": "Email atau password salah",
-          "Email not confirmed": "Email belum dikonfirmasi",
-          "User not found": "Akun tidak ditemukan",
-        };
+      // console.log("✅ LOGIN DATA:", authData);
+      // console.log("❌ LOGIN ERROR:", authError);
 
-        setError(errorMessages[authError.message] || authError.message);
-        setLoading(false);
-        return;
-      }
+      if (!res.ok) {
+  setError(data.message || "Login gagal");
+  setLoading(false);
+  return;
+}
 
-      if (authData.user) {
-        // 2. AMBIL PROFILE DARI TABLE PROFILES
-        // PENTING: Pakai 'profiles' bukan 'users'
-        // PENTING: Field id LANGSUNG match dengan auth.users.id (UUID)
-        const { data: profile, error: profileError } = await supabase
-          .from("profiles") // ← Table profiles (bukan users!)
-          .select("id, nama, kelas, email, role")
-          .eq("id", authData.user.id) // ← Match langsung dengan user.id (UUID)
-          .single();
+// Simpan data user ke sessionStorage
+sessionStorage.setItem("user", JSON.stringify({
+  email: data.user.email,
+  role: data.user.role,
+  nama: data.user.nama,
+  kelas: data.user.kelas
+}));
 
-        console.log("PROFILE DATA:", profile);
-        console.log("PROFILE ERROR:", profileError);
+// Redirect sesuai role
+if (data.user.role === "admin") {
+  router.push("/admin");
+} else {
+  router.push("/user");
+}
+router.refresh();
 
-        if (profileError || !profile) {
-          setError("Data user tidak ditemukan. Silakan hubungi admin.");
-          setLoading(false);
-          
-          // Logout jika profile tidak ada
-          await supabase.auth.signOut();
-          return;
-        }
-
-        const role = profile.role;
-        console.log("🔍 ROLE:", role);
-
-        // 3. REDIRECT BERDASARKAN ROLE
-        if (role === "admin") {
-          console.log("➡️ Redirect ke /admin");
-          router.push("/admin");
-          router.refresh(); // Refresh untuk update auth state
-        } else if (role === "user") {
-          console.log("➡️ Redirect ke /user");
-          router.push("/user");
-          router.refresh();
-        } else {
-          setError("Role tidak dikenali: " + role);
-          setLoading(false);
-        }
-      }
+router.refresh();
     } catch (err) {
       console.error("💥 UNEXPECTED ERROR:", err);
       setError("Terjadi kesalahan tidak terduga");

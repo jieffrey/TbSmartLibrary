@@ -1,109 +1,62 @@
-import { createServerClient } from '@supabase/ssr'
-import { NextResponse, type NextRequest } from 'next/server'
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
-export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  })
+export async function middleware(req: NextRequest) {
+  const res = NextResponse.next();
+  const path = req.nextUrl.pathname;
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value
-        },
-        set(name: string, value: string, options: any) {
-          request.cookies.set({ name, value, ...options })
-          response = NextResponse.next({ request: { headers: request.headers } })
-          response.cookies.set({ name, value, ...options })
-        },
-        remove(name: string, options: any) {
-          request.cookies.set({ name, value: '', ...options })
-          response = NextResponse.next({ request: { headers: request.headers } })
-          response.cookies.set({ name, value: '', ...options })
-        },
-      },
-    }
-  )
-
-  // Refresh session (penting untuk auto-refresh token)
-  const { data: { session } } = await supabase.auth.getSession()
-
-  const { pathname } = request.nextUrl
-
-  // ============================================
-  // DEFINE ROUTES
-  // ============================================
-  const publicRoutes = ['/signin', '/']
-  const protectedRoutes = ['/user', '/dashboard', '/profile']
-  const adminRoutes = ['/admin']
-
-  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route))
-  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
-  const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route))
-
-  // ============================================
-  // AUTH LOGIC
-  // ============================================
-
-  // 1. User belum login, coba akses protected/admin route
-  if (!session && (isProtectedRoute || isAdminRoute)) {
-    console.log('No session, redirect to signin')
-    return NextResponse.redirect(new URL('/full-width-pages/auth/signin', request.url))
+  // Skip middleware untuk public routes
+  if (path === "/full-width-pages/auth/signin" || path.startsWith("/api/auth")) {
+    return res;
   }
 
-  // 2. User sudah login, coba akses signin page
-  if (session && pathname === '/signin') {
-    console.log('Already logged in, redirect to dashboard')
+  const isProtected = path.startsWith("/admin") || path.startsWith("/user");
+
+  if (!isProtected) {
+    return res;
+  }
+
+  try {
+    const supabase = await createServerSupabaseClient();
     
-    // Cek role untuk redirect yang tepat
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', session.user.id)
-      .single()
+    // CEK SESSION DARI SUPABASE (bukan JWT!)
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
 
-    if (profile?.role === 'admin') {
-      return NextResponse.redirect(new URL('/admin', request.url))
-    } else {
-      return NextResponse.redirect(new URL('/user', request.url))
+    // Kalau gak ada session, redirect ke login
+    if (!session) {
+      return NextResponse.redirect(new URL("/full-width-pages/auth/signin", req.url));
     }
-  }
 
-  // 3. User login tapi bukan admin, coba akses admin route
-  if (session && isAdminRoute) {
+    // Ambil role dari profiles
     const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', session.user.id)
-      .single()
+      .from("profiles")
+      .select("role")
+      .eq("id", session.user.id)
+      .single();
 
-    if (profile?.role !== 'admin') {
-      console.log(' Not admin, redirect to user dashboard')
-      return NextResponse.redirect(new URL('/user', request.url))
+    if (!profile) {
+      return NextResponse.redirect(new URL("/full-width-pages/auth/signin", req.url));
     }
-  }
 
-  // 4. Allow access
-  return response
+    // Check role-based access
+    if (path.startsWith("/admin") && profile.role !== "admin") {
+      return NextResponse.redirect(new URL("/user", req.url));
+    }
+
+    if (path.startsWith("/user") && profile.role === "admin") {
+      return NextResponse.redirect(new URL("/admin", req.url));
+    }
+
+    return res;
+  } catch (error) {
+    console.error("Middleware error:", error);
+    return NextResponse.redirect(new URL("/full-width-pages/auth/signin", req.url));
+  }
 }
 
-// ============================================
-// CONFIG: Routes yang kena middleware
-// ============================================
 export const config = {
-  matcher: [
-    /*
-     * Match all paths EXCEPT:
-     * - _next/static (static files)
-     * - _next/image (image optimization)
-     * - favicon.ico
-     * - public assets (images, etc)
-     */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-  ],
-}
+  matcher: ["/admin/:path*", "/user/:path*"],
+};

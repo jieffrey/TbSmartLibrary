@@ -1,17 +1,22 @@
 "use client";
 
-import { signOut } from "@/lib/auth/actions";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function LogoutButton() {
   const [loading, setLoading] = useState(false);
+  const router = useRouter()
 
   const handleLogout = async () => {
     setLoading(true);
     try {
-      await signOut(); // ← Server action handle redirect otomatis
+      localStorage.clear()
+      sessionStorage.clear()
+      setTimeout(() => {
+        router.push("/full-width-pages/auth/signin")
+      }, 1000);
     } catch (error) {
       console.error("Logout error:", error);
       setLoading(false);

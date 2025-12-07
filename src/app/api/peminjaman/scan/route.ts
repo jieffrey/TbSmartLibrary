@@ -1,60 +1,87 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
-export async function POST(req) {
+export async function POST(req: Request) {
   try {
     const supabase = await createServerSupabaseClient();
-    const body = await req.json();
-
-    const { code } = body;
-    if (!code) {
-      return NextResponse.json(
-        { error: "QR code tidak ditemukan" },
-        { status: 400 }
-      );
+    
+    // Check auth (admin only)
+    const { data: { session }, error: authError } = await supabase.auth.getSession();
+    
+    if (authError || !session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // QR harus berupa JSON string → parse
-    let data;
-    try {
-      data = JSON.parse(code);
-    } catch (err) {
-      return NextResponse.json(
-        { error: "QR code tidak valid" },
-        { status: 400 }
-      );
-    }
-
-    const borrowId = data.borrow_id;
-    if (!borrowId) {
-      return NextResponse.json(
-        { error: "borrow_id tidak ditemukan di QR" },
-        { status: 400 }
-      );
-    }
-
-    // Update status peminjaman
-    const { data: updated, error } = await supabase
-      .from("borrow")
-      .update({
-        status: "borrowed",          // buku resmi dipinjam
-        scanned_at: new Date().toISOString(),
-      })
-      .eq("id", borrowId)
-      .select()
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", session.user.id)
       .single();
 
-    if (error) {
-      return NextResponse.json(
-        { error: "Gagal update status peminjaman" },
-        { status: 500 }
-      );
+    if (profile?.role !== "admin") {
+      return NextResponse.json({ error: "Admin only" }, { status: 403 });
     }
 
-    return NextResponse.json({ success: true, borrow: updated });
+    // Parse QR payload
+    const payload = await req.json();
+    const { type, user_id, book_id, batas_kembali } = payload;
 
-  } catch (err) {
-    console.error("SERVER ERROR:", err);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    console.log("QR Scan payload:", payload);
+
+    if (type === "borrow") {
+      // Update peminjaman status dari "menunggu" ke "dipinjam"
+      const { data: peminjaman, error: peminjamanError } = await supabase
+        .from("peminjaman")
+        .select("*")
+        .eq("user_id", user_id)
+        .eq("book_id", book_id)
+        .eq("status", "menunggu")
+        .maybeSingle();
+
+      if (peminjamanError || !peminjaman) {
+        return NextResponse.json({ 
+          error: "Peminjaman tidak ditemukan atau sudah diproses" 
+        }, { status: 404 });
+      }
+
+      // Update status ke "dipinjam"
+      const { error: updateError } = await supabase
+        .from("peminjaman")
+        .update({ 
+          status: "dipinjam",
+          tanggal_pinjam: new Date().toISOString(),
+        })
+        .eq("id", peminjaman.id);
+
+      if (updateError) {
+        return NextResponse.json({ error: updateError.message }, { status: 500 });
+      }
+
+      // Update stok buku (kurangi 1)
+      const { data: book } = await supabase
+        .from("books")
+        .select("stok")
+        .eq("id", book_id)
+        .single();
+
+      if (book && book.stok > 0) {
+        await supabase
+          .from("books")
+          .update({ stok: book.stok - 1 })
+          .eq("id", book_id);
+      }
+
+      return NextResponse.json({ 
+        success: true,
+        message: "Peminjaman berhasil dikonfirmasi!",
+        data: peminjaman
+      });
+    }
+
+    return NextResponse.json({ error: "Invalid QR type" }, { status: 400 });
+
+  } catch (error: any) {
+    console.error("Scan API Error:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

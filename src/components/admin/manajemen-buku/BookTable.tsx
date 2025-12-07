@@ -1,11 +1,27 @@
 "use client";
 
 import React, { useState } from "react";
-import { Book, deleteBook } from "@/app/api/books/route";
 import { Pencil, Trash2, Eye, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
+
+// ✅ FIX: Definisikan type Book di sini (jangan import dari route)
+type Book = {
+  id: number;
+  judul: string;
+  penulis?: string;
+  penerbit?: string;
+  tahun_terbit?: string;
+  kategori?: string;
+  stok: number;
+  image_url?: string;
+  qr_code?: string;
+  shelf_location?: string;
+  rack_id?: number;
+  created_at?: string;
+  updated_at?: string;
+};
 
 type BookTableProps = {
   books: Book[];
@@ -16,18 +32,23 @@ export default function BookTable({ books }: BookTableProps) {
   const { toast } = useToast();
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
+  // ✅ FIX: Fetch ke API route, bukan import function
   const handleDelete = async (id: number, judul: string) => {
     if (!confirm(`Yakin ingin menghapus buku "${judul}"?`)) return;
 
     setDeletingId(id);
 
     try {
-      const result = await deleteBook(id);
+      const response = await fetch(`/api/books/${id}`, {
+        method: "DELETE",
+      });
 
-      if (!result.success) {
+      const result = await response.json();
+
+      if (!response.ok) {
         toast({
           title: "Gagal",
-          description: result.error,
+          description: result.error || "Gagal menghapus buku",
           variant: "destructive",
         });
         return;
@@ -40,6 +61,7 @@ export default function BookTable({ books }: BookTableProps) {
 
       router.refresh();
     } catch (error) {
+      console.error("Delete error:", error);
       toast({
         title: "Error",
         description: "Terjadi kesalahan tidak terduga",
@@ -154,7 +176,7 @@ export default function BookTable({ books }: BookTableProps) {
                   <div className="flex items-center justify-center gap-2">
                     {/* VIEW */}
                     <Link
-                      href={`/admin/books/${book.id}`}
+                      href={`/admin/dashboard/books/${book.id}`}
                       className="p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 
                         transition-colors group"
                       title="Lihat Detail"
@@ -164,7 +186,7 @@ export default function BookTable({ books }: BookTableProps) {
 
                     {/* EDIT */}
                     <Link
-                      href={`/admin/books/${book.id}/edit`}
+                      href={`/admin/dashboard/books/${book.id}/edit`}
                       className="p-2 rounded-lg hover:bg-[#FFC428]/10 dark:hover:bg-[#FFC428]/20 
                         transition-colors group"
                       title="Edit Buku"

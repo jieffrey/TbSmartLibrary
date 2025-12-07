@@ -1,29 +1,49 @@
 "use client";
 
-import { useState } from "react";
-import { Search, Bell, User, QrCode } from "lucide-react";
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { SearchBar } from "@/components/user/home/searchbar"; 
 import { CategoryList } from "@/components/user/home/kategori";
-import { QRPickupCard } from "@/components/user/home/qris";
-import { PopularBooks } from "@/components/user/home/popularbook";
-import BookCatalog from '@/components/user/home/katalog';
-import { SearchBar } from "@/components/user/home/searchbar";
-// import { GreetingCard } from "@/components/user/home/greetingcar";
-// import { Header } from "@/components/user/home/header";
+import BookCard from "@/components/user/landingpage/catalog/BookCard";
 
 export default function UserHome() {
-const [searchQuery, setSearchQuery] = useState("");
+  const [books, setBooks] = useState([]);
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("Semua");
 
+  useEffect(() => {
+    fetch("/api/books")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("HASIL API:", data);
 
-return (
-<div className="min-h-screen px-4 py-6 md:px-8 dark:bg-gray-900">
-{/* <Header /> */}
-<SearchBar onSearch={setSearchQuery} />
-{/* <GreetingCard /> */}
-{/* <QRPickupCard show={true} /> */}
-<CategoryList />
-<PopularBooks />
-<BookCatalog searchQuery={searchQuery} />
-</div>
-);
+        if (Array.isArray(data)) {
+          setBooks(data);
+        } else if (Array.isArray(data?.data)) {
+          setBooks(data.data);
+        } else {
+          setBooks([]);
+        }
+      });
+  }, []);
+
+  const filtered = Array.isArray(books)
+    ? books.filter((b) => {
+        const judulMatch = b.judul?.toLowerCase().includes(search.toLowerCase());
+        const categoryMatch = category === "Semua" || b.kategori === category;
+        return judulMatch && categoryMatch;
+      })
+    : [];
+
+  return (
+    <div className="p-4">
+      <SearchBar onSearch={(v) => setSearch(v)} />
+      <CategoryList onSelectCategory={(cat) => setCategory(cat)} />
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {filtered.map((book) => (
+          <BookCard key={book.id} {...book} />
+        ))}
+      </div>
+    </div>
+  );
 }

@@ -4,33 +4,40 @@ import ProfileAwards from "@/components/admin/profile/awards";
 import ProfileBanner from "@/components/admin/profile/banner";
 import ProfileGeneral from "@/components/admin/profile/general";
 import ProfilePieChart from "@/components/admin/profile/storage";
-import ProfileActivity from '../../../../components/admin/profile/RecentActivity';
+// import ProfileActivity from "@/components/admin/profile/RecentActivity"; // nanti bisa aktifkan
 
 const ProfileOverview = () => {
   return (
     <div className="flex w-full flex-col gap-5 lg:gap-5">
-      <div className="w-ful mt-3 flex h-fit flex-col gap-5 lg:grid lg:grid-cols-12">
-        <div className="col-span-4 lg:!mb-0">
-          <ProfileBanner/>
+      {/* Top Section: Banner + Pie Chart + Activity */}
+      <div className="w-full mt-3 flex flex-col gap-5 lg:grid lg:grid-cols-12">
+        {/* Banner */}
+        <div className="col-span-12 lg:col-span-4">
+          <ProfileBanner />
         </div>
 
-        <div className="col-span-3 lg:!mb-0">
-          <ProfilePieChart/>
+        {/* Pie Chart */}
+        <div className="col-span-12 lg:col-span-3">
+          <ProfilePieChart />
         </div>
 
-        <div className="z-0 col-span-5 lg:!mb-0">
-          <ProfileActivity/>
+        {/* Activity / Upload */}
+        <div className="col-span-12 lg:col-span-5">
+          {/* <ProfileActivity /> */}
           {/* <Upload /> */}
         </div>
       </div>
-      {/* all project & ... */}
 
-      <div className="mb-4 grid h-full grid-cols-1 gap-5 lg:!grid-cols-12">
-        <div className="col-span-5 lg:col-span-6 lg:mb-0 3xl:col-span-4">
-          <ProfileAwards/>
+      {/* Bottom Section: Awards + General Info */}
+      <div className="grid w-full grid-cols-1 gap-5 lg:grid-cols-12 mb-4">
+        {/* Awards */}
+        <div className="col-span-12 lg:col-span-6 3xl:col-span-4">
+          <ProfileAwards />
         </div>
-        <div className="col-span-5 lg:col-span-6 lg:mb-0 3xl:col-span-5">
-          <ProfileGeneral/>
+
+        {/* General Info */}
+        <div className="col-span-12 lg:col-span-6 3xl:col-span-5">
+          {/* <ProfileGeneral /> */}
         </div>
       </div>
     </div>

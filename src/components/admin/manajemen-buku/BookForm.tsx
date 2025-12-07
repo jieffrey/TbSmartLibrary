@@ -1,78 +1,115 @@
 "use client";
 
-import React, { useState } from "react";
-import { BookFormData } from "@/app/api/books/route";
-import { Loader2 } from "lucide-react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2, Save, X } from "lucide-react";
+import Link from "next/link";
 
 type BookFormProps = {
-  defaultValues?: Partial<BookFormData>;
-  onSubmit: (data: BookFormData) => Promise<void>;
-  isEdit?: boolean;
-  loading?: boolean;
+  book?: Book;
+  mode: "add" | "edit";
 };
 
-export default function BookForm({ 
-  defaultValues, 
-  onSubmit, 
-  isEdit = false,
-  loading: externalLoading = false 
-}: BookFormProps) {
+export default function BookForm({ book, mode }: BookFormProps) {
+  const router = useRouter();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState<BookFormData>({
-    judul: defaultValues?.judul || "",
-    penulis: defaultValues?.penulis || "",
-    penerbit: defaultValues?.penerbit || "",
-    tahun_terbit: defaultValues?.tahun_terbit || "",
-    kategori: defaultValues?.kategori || "Novel",
-    stok: defaultValues?.stok || 0,
-    sinopsis: defaultValues?.sinopsis || "",
-    image_url: defaultValues?.image_url || "",
+
+  const [formData, setFormData] = useState({
+    judul: book?.judul || "",
+    penulis: book?.penulis || "",
+    penerbit: book?.penerbit || "",
+    tahun_terbit: book?.tahun_terbit || "",
+    kategori: book?.kategori || "",
+    stok: book?.stok || 0,
+    image_url: book?.image_url || "",
+    shelf_location: book?.shelf_location || "",
   });
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "stok" ? parseInt(value) || 0 : value,
+      [name]: name === "stok" ? Number(value) : value,
     }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await onSubmit(formData);
-    } finally {
-      setLoading(false);
-    }
-  };
+  e.preventDefault();
+  console.log("Submit clicked");
+  console.log("Form Data:", formData);
 
-  const isLoading = loading || externalLoading;
+  if (!formData.judul.trim()) {
+    toast({
+      title: "Error",
+      description: "Judul buku wajib diisi",
+      variant: "destructive",
+    });
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const url = mode === "add" ? "/api/books" : `/api/books/${book!.id}`;
+    console.log("Sending request to", url, "with method", mode === "add" ? "POST" : "PATCH");
+
+    const res = await fetch(url, {
+      method: mode === "add" ? "POST" : "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
+
+    console.log("Raw response:", res);
+
+    const result = await res.json();
+    console.log("Parsed response:", result);
+
+    if (!result.success) {
+      toast({
+        title: "Gagal",
+        description: result.error,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    alert(`Buku berhasil ${mode === "add" ? "ditambahkan" : "diupdate"}`);
+    router.push("/admin/dashboard/books");
+  } catch (error: any) {
+    toast({
+      title: "Error",
+      description: error.message || "Terjadi kesalahan",
+      variant: "destructive",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
+  const kategoriOptions = [
+    "Fiksi",
+    "Non-Fiksi",
+    "Sains",
+    "Teknologi",
+    "Sejarah",
+    "Biografi",
+    "Pendidikan",
+    "Agama",
+    "Komik",
+    "Majalah",
+    "Lainnya",
+  ];
 
   return (
-    <div className="
-      rounded-2xl border border-gray-200 bg-white 
-      dark:border-gray-700 dark:bg-white/[0.03]
-      p-6 shadow-sm
-    ">
-      <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-6 flex items-center gap-2">
-        {isEdit ? (
-          <>
-            <span className="text-[#FFC428]">✏️</span> Edit Buku
-          </>
-        ) : (
-          <>
-            <span className="text-[#FFC428]">➕</span> Tambah Buku Baru
-          </>
-        )}
-      </h3>
-
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-white/[0.03] p-6">
         {/* JUDUL */}
-        <div className="sm:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <div className="mb-5">
+          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
             Judul Buku <span className="text-red-500">*</span>
           </label>
           <input
@@ -81,19 +118,17 @@ export default function BookForm({
             value={formData.judul}
             onChange={handleChange}
             required
-            disabled={isLoading}
-            placeholder="Masukkan judul buku"
-            className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 
               bg-white dark:bg-gray-800 text-gray-800 dark:text-white
-              focus:border-[#FFC428] focus:ring-2 focus:ring-[#FFC428]/20
-              disabled:opacity-50 disabled:cursor-not-allowed
+              focus:ring-2 focus:ring-[#FFC428] focus:border-transparent
               transition-all duration-200"
+            placeholder="Masukkan judul buku"
           />
         </div>
 
         {/* PENULIS */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <div className="mb-5">
+          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
             Penulis
           </label>
           <input
@@ -101,166 +136,186 @@ export default function BookForm({
             name="penulis"
             value={formData.penulis}
             onChange={handleChange}
-            disabled={isLoading}
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 
+              bg-white dark:bg-gray-800 text-gray-800 dark:text-white
+              focus:ring-2 focus:ring-[#FFC428] focus:border-transparent
+              transition-all duration-200"
             placeholder="Nama penulis"
-            className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 
-              bg-white dark:bg-gray-800 text-gray-800 dark:text-white
-              focus:border-[#FFC428] focus:ring-2 focus:ring-[#FFC428]/20
-              disabled:opacity-50 disabled:cursor-not-allowed
-              transition-all duration-200"
           />
         </div>
 
-        {/* PENERBIT */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Penerbit
-          </label>
-          <input
-            type="text"
-            name="penerbit"
-            value={formData.penerbit}
-            onChange={handleChange}
-            disabled={isLoading}
-            placeholder="Nama penerbit"
-            className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 
-              bg-white dark:bg-gray-800 text-gray-800 dark:text-white
-              focus:border-[#FFC428] focus:ring-2 focus:ring-[#FFC428]/20
-              disabled:opacity-50 disabled:cursor-not-allowed
-              transition-all duration-200"
-          />
+        {/* PENERBIT & TAHUN */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              Penerbit
+            </label>
+            <input
+              type="text"
+              name="penerbit"
+              value={formData.penerbit}
+              onChange={handleChange}
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 
+                bg-white dark:bg-gray-800 text-gray-800 dark:text-white
+                focus:ring-2 focus:ring-[#FFC428] focus:border-transparent
+                transition-all duration-200"
+              placeholder="Nama penerbit"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              Tahun Terbit
+            </label>
+            <input
+              type="text"
+              name="tahun_terbit"
+              value={formData.tahun_terbit}
+              onChange={handleChange}
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 
+                bg-white dark:bg-gray-800 text-gray-800 dark:text-white
+                focus:ring-2 focus:ring-[#FFC428] focus:border-transparent
+                transition-all duration-200"
+              placeholder="2024"
+              maxLength={4}
+            />
+          </div>
         </div>
 
-        {/* TAHUN TERBIT */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Tahun Terbit
-          </label>
-          <input
-            type="text"
-            name="tahun_terbit"
-            value={formData.tahun_terbit}
-            onChange={handleChange}
-            disabled={isLoading}
-            placeholder="2024"
-            maxLength={4}
-            className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 
-              bg-white dark:bg-gray-800 text-gray-800 dark:text-white
-              focus:border-[#FFC428] focus:ring-2 focus:ring-[#FFC428]/20
-              disabled:opacity-50 disabled:cursor-not-allowed
-              transition-all duration-200"
-          />
+        {/* KATEGORI & STOK */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              Kategori
+            </label>
+            <select
+              name="kategori"
+              value={formData.kategori}
+              onChange={handleChange}
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 
+                bg-white dark:bg-gray-800 text-gray-800 dark:text-white
+                focus:ring-2 focus:ring-[#FFC428] focus:border-transparent
+                transition-all duration-200"
+            >
+              <option value="">Pilih kategori</option>
+              {kategoriOptions.map((kat) => (
+                <option key={kat} value={kat}>
+                  {kat}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              Stok <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="number"
+              name="stok"
+              value={formData.stok}
+              onChange={handleChange}
+              required
+              min="0"
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 
+                bg-white dark:bg-gray-800 text-gray-800 dark:text-white
+                focus:ring-2 focus:ring-[#FFC428] focus:border-transparent
+                transition-all duration-200"
+              placeholder="0"
+            />
+          </div>
         </div>
 
-        {/* KATEGORI */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Kategori
-          </label>
-          <select
-            name="kategori"
-            value={formData.kategori}
-            onChange={handleChange}
-            disabled={isLoading}
-            className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 
-              bg-white dark:bg-gray-800 text-gray-800 dark:text-white
-              focus:border-[#FFC428] focus:ring-2 focus:ring-[#FFC428]/20
-              disabled:opacity-50 disabled:cursor-not-allowed
-              transition-all duration-200"
-          >
-            <option value="Novel">Novel</option>
-            <option value="Pelajaran">Pelajaran</option>
-            <option value="Self Development">Self Development</option>
-            <option value="Fantasi">Fantasi</option>
-            <option value="Biografi">Biografi</option>
-            <option value="Sejarah">Sejarah</option>
-            <option value="Lainnya">Lainnya</option>
-          </select>
-        </div>
-
-        {/* STOK */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Jumlah Stok <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="number"
-            name="stok"
-            value={formData.stok}
-            onChange={handleChange}
-            required
-            min={0}
-            disabled={isLoading}
-            placeholder="0"
-            className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 
-              bg-white dark:bg-gray-800 text-gray-800 dark:text-white
-              focus:border-[#FFC428] focus:ring-2 focus:ring-[#FFC428]/20
-              disabled:opacity-50 disabled:cursor-not-allowed
-              transition-all duration-200"
-          />
-        </div>
-
-        {/* URL GAMBAR */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            URL Gambar
+        {/* IMAGE URL */}
+        <div className="mb-5">
+          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            URL Gambar Cover
           </label>
           <input
             type="url"
             name="image_url"
             value={formData.image_url}
             onChange={handleChange}
-            disabled={isLoading}
-            placeholder="https://example.com/image.jpg"
-            className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 
               bg-white dark:bg-gray-800 text-gray-800 dark:text-white
-              focus:border-[#FFC428] focus:ring-2 focus:ring-[#FFC428]/20
-              disabled:opacity-50 disabled:cursor-not-allowed
+              focus:ring-2 focus:ring-[#FFC428] focus:border-transparent
               transition-all duration-200"
+            placeholder="https://example.com/cover.jpg"
           />
         </div>
 
-        {/* SINOPSIS */}
-        <div className="sm:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Sinopsis
+        {/* SHELF LOCATION */}
+        <div className="mb-5">
+          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            Lokasi Rak
           </label>
-          <textarea
-            name="sinopsis"
-            value={formData.sinopsis}
+          <input
+            type="text"
+            name="shelf_location"
+            value={formData.shelf_location}
             onChange={handleChange}
-            disabled={isLoading}
-            rows={4}
-            placeholder="Deskripsi singkat tentang buku..."
-            className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 
               bg-white dark:bg-gray-800 text-gray-800 dark:text-white
-              focus:border-[#FFC428] focus:ring-2 focus:ring-[#FFC428]/20
-              disabled:opacity-50 disabled:cursor-not-allowed
-              transition-all duration-200 resize-none"
+              focus:ring-2 focus:ring-[#FFC428] focus:border-transparent
+              transition-all duration-200"
+            placeholder="Rak A-12"
           />
         </div>
 
-        {/* SUBMIT BUTTON */}
-        <div className="sm:col-span-2 flex justify-end gap-3">
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="px-8 py-3 rounded-xl bg-[#FFC428] text-black font-semibold
-              hover:bg-[#FFD666] hover:shadow-lg hover:scale-[1.02]
-              disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
-              transition-all duration-200 flex items-center gap-2"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="size-5 animate-spin" />
-                {isEdit ? "Menyimpan..." : "Menambahkan..."}
-              </>
-            ) : (
-              <>{isEdit ? "💾 Simpan Perubahan" : "➕ Tambah Buku"}</>
-            )}
-          </button>
-        </div>
-      </form>
-    </div>
+        {/* PREVIEW IMAGE */}
+        {formData.image_url && (
+          <div className="mb-5">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              Preview Cover
+            </label>
+            <div className="relative w-32 h-48 rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700">
+              <img
+                src={formData.image_url}
+                alt="Cover preview"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = "/placeholder-book.png";
+                }}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* BUTTONS */}
+      <div className="flex gap-3 justify-end">
+        <Link
+          href="/admin"
+          className="px-6 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600
+            text-gray-700 dark:text-gray-300 font-semibold
+            hover:bg-gray-50 dark:hover:bg-gray-800
+            transition-all duration-200 flex items-center gap-2"
+        >
+          <X size={20} />
+          Batal
+        </Link>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="px-6 py-3 rounded-xl bg-[#FFC428] text-black font-semibold
+            hover:bg-[#FFD666] hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed
+            transition-all duration-200 flex items-center gap-2"
+        >
+          {loading ? (
+            <>
+              <Loader2 size={20} className="animate-spin" />
+              Menyimpan...
+            </>
+          ) : (
+            <>
+              <Save size={20} />
+              {mode === "add" ? "Tambah Buku" : "Simpan Perubahan"}
+            </>
+          )}
+        </button>
+      </div>
+    </form>
   );
 }
+

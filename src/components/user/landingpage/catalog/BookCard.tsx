@@ -1,56 +1,48 @@
 'use client'
-import Image from "next/image"
-import Link from "next/link"
-import { Card, CardContent } from "@/components/ui/card"
-import { Star } from "lucide-react"
-import CTAButton from "./CTAbutton"
+
+import { Card, CardContent } from "@/components/ui/card";
+import { motion } from "framer-motion";
+import Link from "next/link";
 
 interface BookCardProps {
   id: number
-  title: string
-  category: string
-  rating: number
-  img: string
+  judul: string
+  penulis?: string
+  kategori?: string
+  stok?: number
+  image_url?: string
+  rack?: {
+    kode?: string
+    deskripsi?: string
+  }
 }
 
-export default function BookCard({ id, title, category, rating, img }: BookCardProps) {
+export default function BookCard({ id, judul, penulis, kategori, stok, image_url }: any) {
   return (
-    <Card className="
-  group backdrop-blur-md rounded-xl overflow-hidden shadow-md hover:shadow-lg transition
-  bg-white/90 dark:bg-white/10
-  border border-gray-200 dark:border-white/10
-">
-  <div className="relative">
-    <Image
-      src={img}
-      alt={title}
-      width={400}
-      height={500}
-      className="object-cover w-full h-64 group-hover:scale-105 transition duration-300"
-    />
-    <div className="
-      absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 
-      transition flex items-center justify-center
-    ">
-      <CTAButton
-        href="/full-width-pages/auth/signup"
-        text="Pinjam Sekarang"
-        variant="primary"
-      />
-    </div>
-  </div>
+    <Link href={`/user/book/${id}`} className="block">
+      <motion.div whileHover={{ scale: 1.02 }} transition={{ duration: 0.2 }}>
+        <Card className="overflow-hidden rounded-xl shadow-sm hover:shadow-md transition">
+          <img
+            src={image_url}
+            alt={judul}
+            className="w-full h-40 object-cover"
+          />
 
-  <CardContent className="p-4 text-left">
-    <h3 className="font-semibold text-lg text-[var(--color-dark)] dark:text-white">
-      {title}
-    </h3>
-    <p className="text-sm text-gray-500 dark:text-gray-400">{category}</p>
+          <CardContent className="p-4">
+            <h3 className="font-semibold text-black dark:text-white mb-1">
+              {judul}
+            </h3>
 
-    <div className="flex items-center gap-1 mt-2 text-[var(--color-foreground)]">
-      <Star size={16} fill="currentColor" />
-      <span className="text-sm text-gray-600 dark:text-gray-300">{rating}</span>
-    </div>
-  </CardContent>
-</Card>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              {penulis}
+            </p>
+
+            <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+              <span>{kategori}</span> • <span>Stok: {stok}</span>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </Link>
   );
 }

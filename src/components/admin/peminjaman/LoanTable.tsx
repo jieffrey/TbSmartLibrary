@@ -1,222 +1,321 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { SupabaseClient } from "@supabase/supabase-js";
-import { motion } from "framer-motion";
-import { Search, CheckCircle, XCircle, ArrowUpDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Select, SelectTrigger, SelectContent, SelectItem } from "@/components/ui/select";
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import Badge from "@/components/ui/badge/Badge";
+import { Eye, CheckCircle, XCircle } from "lucide-react";
+import { createBrowserSupabase } from "@/lib/supabase/client";
+import { redirect } from "next/navigation";
 
 interface Loan {
   id: number;
-  borrower: string;
-  book: string;
+  user_id: string;
+  book_id: number;
   tanggal_pinjam: string;
+  tanggal_kembali: string | null;
   batas_kembali: string;
   status: string;
+  created_at: string;
+  profiles?: {
+    nama: string;
+    email: string;
+    kelas: string;
+  };
+  books?: {
+    judul: string;
+    penulis: string;
+    image_url: string;
+  };
 }
 
 export default function LoanTable() {
   const [loans, setLoans] = useState<Loan[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const [search, setSearch] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
-  const [sortBy, setSortBy] = useState("due");
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 8;
-  const dendaPerHari = 1000;
-
-  // FETCH DATA
-  const fetchLoans = async () => {
-    const { data, error } = await SupabaseClient
-      .from("peminjaman")
-      .select(`
-        id,
-        tanggal_pinjam,
-        batas_kembali,
-        status,
-        profiles:nama,
-        books:title
-      `);
-
-    if (!error && data) {
-      setLoans(
-        data.map((row: any) => ({
-          id: row.id,
-          borrower: row.profiles?.nama ?? "-",
-          book: row.books?.title ?? "-",
-          tanggal_pinjam: row.tanggal_pinjam,
-          batas_kembali: row.batas_kembali,
-          status: row.status
-        }))
-      );
-    }
-
-    setLoading(false);
-  };
+  const [filter, setFilter] = useState<string>("all");
 
   useEffect(() => {
     fetchLoans();
-  }, []);
+  }, [filter]);
 
-  // UPDATE STATUS PEMINJAMAN
-  const updateStatus = async (id: number, newStatus: string) => {
-    await SupabaseClient.from("peminjaman").update({ status: newStatus }).eq("id", id);
-    fetchLoans();
+  async function fetchLoans() {
+    try {
+      setLoading(true);
+      const supabase = createBrowserSupabase();
+
+      let query = supabase
+        .from("peminjaman")
+        .select(`
+          *,
+          profiles:user_id (
+            nama,
+            email,
+            kelas
+          ),
+          books:book_id (
+            judul,
+            penulis,
+            image_url
+          )
+        `)
+        .order("created_at", { ascending: false });
+
+      // Filter by status
+      if (filter !== "all") {
+        query = query.eq("status", filter);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error("Error fetching loans:", error);
+        alert(`Gagal memuat data: ${error.message}`);
+      } else {
+        console.log("Loans data:", data);
+        setLoans(data || []);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Terjadi kesalahan saat memuat data");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleApprove(loanId: number) {
+    if (!confirm("Setujui peminjaman ini?")) return;
+
+    try {
+      const supabase = createBrowserSupabase();
+      const { error } = await supabase
+        .from("peminjaman")
+        .update({
+          status: "dipinjam",
+          tanggal_pinjam: new Date().toISOString().split("T")[0],
+        })
+        .eq("id", loanId);
+
+      if (error) {
+        alert(`Gagal: ${error.message}`);
+      } else {
+        alert("Peminjaman disetujui!");
+        fetchLoans();
+      }
+    } catch (error) {
+      console.error("Error approving loan:", error);
+      alert("Terjadi kesalahan");
+    }
+  }
+
+  async function handleReject(loanId: number) {
+    if (!confirm("Tolak peminjaman ini?")) return;
+
+    try {
+      const supabase = createBrowserSupabase();
+      const { error } = await supabase
+        .from("peminjaman")
+        .update({ status: "ditolak" })
+        .eq("id", loanId);
+
+      if (error) {
+        alert(`Gagal: ${error.message}`);
+      } else {
+        alert("Peminjaman ditolak!");
+        fetchLoans();
+      }
+    } catch (error) {
+      console.error("Error rejecting loan:", error);
+      alert("Terjadi kesalahan");
+    }
+  }
+
+  const getStatusBadge = (status: string) => {
+    const styles = {
+      menunggu: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
+      dipinjam: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
+      dikembalikan: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
+      ditolak: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
+    };
+    return styles[status as keyof typeof styles] || "bg-gray-100 text-gray-800";
   };
 
-  const now = new Date();
+  const getStatusLabel = (status: string) => {
+    const labels = {
+      menunggu: "Menunggu",
+      dipinjam: "Dipinjam",
+      dikembalikan: "Dikembalikan",
+      ditolak: "Ditolak",
+    };
+    return labels[status as keyof typeof labels] || status;
+  };
 
-  const filtered = useMemo(() => {
-    return loans
-      .filter((loan) => {
-        const isLate = new Date(loan.batas_kembali) < now;
-
-        if (!loan.borrower.toLowerCase().includes(search.toLowerCase()) &&
-            !loan.book.toLowerCase().includes(search.toLowerCase())) return false;
-
-        if (filterStatus === "late" && !isLate) return false;
-        if (filterStatus === "ontime" && isLate) return false;
-        if (filterStatus !== "all" && loan.status !== filterStatus) return false;
-
-        return true;
-      })
-      .sort((a, b) => {
-        if (sortBy === "name") return a.borrower.localeCompare(b.borrower);
-        return new Date(a.batas_kembali).getTime() - new Date(b.batas_kembali).getTime();
-      });
-  }, [search, filterStatus, sortBy, loans]);
-
-  const paginated = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-  const totalPages = Math.ceil(filtered.length / pageSize);
-
-  if (loading) return <p className="text-center p-6">Loading...</p>;
+  if (loading) {
+    return (
+      <Card className="w-full bg-white dark:bg-white/[0.03] shadow-md border border-gray-200 dark:border-gray-800">
+        <CardContent className="p-6">
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-muted-foreground">Memuat data peminjaman...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
-    <Card className="bg-[#FFF8E7] dark:bg-white/5 shadow-lg border">
-      <CardContent className="p-5">
+    <Card className="w-full bg-white dark:bg-white/[0.03] shadow-md border border-gray-200 dark:border-gray-800">
+      <CardContent className="p-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+          <h2 className="text-xl font-bold text-slate-800 dark:text-white">
+            Daftar Peminjaman ({loans.length})
+          </h2>
 
-        {/* HEADER */}
-        <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
-          <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-900 p-2 px-4 rounded-xl">
-            <Search className="w-5 h-5 text-slate-500" />
-            <input
-              className="bg-transparent outline-none w-full text-sm"
-              placeholder="Cari peminjam atau buku..."
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-
-          <div className="flex gap-3">
-            <Select onValueChange={setFilterStatus}>
-              <SelectTrigger className="w-[150px]">Filter</SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Semua</SelectItem>
-                <SelectItem value="menunggu">Menunggu</SelectItem>
-                <SelectItem value="dipinjam">Dipinjam</SelectItem>
-                <SelectItem value="dikembalikan">Dikembalikan</SelectItem>
-                <SelectItem value="late">Terlambat</SelectItem>
-                <SelectItem value="ontime">Tepat Waktu</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select onValueChange={setSortBy}>
-              <SelectTrigger className="w-[150px]">Sort</SelectTrigger>
-              <SelectContent>
-                <SelectItem value="name">Nama</SelectItem>
-                <SelectItem value="due">Jatuh Tempo</SelectItem>
-              </SelectContent>
-            </Select>
+          {/* Filter */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => setFilter("all")}
+              className={`px-4 py-2 rounded-lg text-sm transition ${
+                filter === "all"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+              }`}
+            >
+              Semua
+            </button>
+            <button
+              onClick={() => setFilter("menunggu")}
+              className={`px-4 py-2 rounded-lg text-sm transition ${
+                filter === "menunggu"
+                  ? "bg-yellow-600 text-white"
+                  : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+              }`}
+            >
+              Menunggu
+            </button>
+            <button
+              onClick={() => setFilter("dipinjam")}
+              className={`px-4 py-2 rounded-lg text-sm transition ${
+                filter === "dipinjam"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+              }`}
+            >
+              Dipinjam
+            </button>
+            <button
+              onClick={fetchLoans}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition"
+            >
+              Refresh
+            </button>
           </div>
         </div>
 
-        {/* TABEL */}
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-[#FFC428]">
-              <th className="p-3 text-left">Peminjam</th>
-              <th className="p-3 text-left">Buku</th>
-              <th className="p-3 text-left">Pinjam</th>
-              <th className="p-3 text-left">Tempo</th>
-              <th className="p-3 text-left">Status</th>
-              <th className="p-3 text-left">Denda</th>
-              <th className="p-3">Aksi</th>
-            </tr>
-          </thead>
+        {loans.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">
+              {filter === "all" 
+                ? "Tidak ada data peminjaman" 
+                : `Tidak ada peminjaman dengan status "${getStatusLabel(filter)}"`}
+            </p>
+          </div>
+        ) : (
+          <div className="w-full overflow-x-auto">
+            <table className="min-w-full border-collapse">
+              <thead>
+                <tr className="bg-sky-600 text-white dark:bg-[#FFC428] dark:text-gray-900">
+                  <th className="text-left p-3 text-sm font-semibold">Peminjam</th>
+                  <th className="text-left p-3 text-sm font-semibold">Buku</th>
+                  <th className="text-left p-3 text-sm font-semibold">Tgl Pinjam</th>
+                  <th className="text-left p-3 text-sm font-semibold">Batas Kembali</th>
+                  <th className="text-left p-3 text-sm font-semibold">Status</th>
+                  <th className="text-left p-3 text-sm font-semibold">Aksi</th>
+                </tr>
+              </thead>
 
-          <tbody>
-            {paginated.map((loan) => {
-              const due = new Date(loan.batas_kembali);
-              const isLate = due < now;
-              const lateDays = isLate
-                ? Math.ceil((now.getTime() - due.getTime()) / (1000 * 60 * 60 * 24))
-                : 0;
-              const fine = lateDays * dendaPerHari;
+              <tbody>
+                {loans.map((loan) => (
+                  <tr
+                    key={loan.id}
+                    className="border-b border-gray-200 dark:border-gray-700 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition"
+                  >
+                    <td className="p-3 text-sm text-slate-700 dark:text-gray-200">
+                      <div>
+                        <p className="font-medium">{loan.profiles?.nama || "-"}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {loan.profiles?.kelas || "-"}
+                        </p>
+                      </div>
+                    </td>
 
-              return (
-                <motion.tr key={loan.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                  className="border-b hover:bg-sky-50 dark:hover:bg-sky-900/30"
-                >
-                  <td className="p-3">{loan.borrower}</td>
-                  <td className="p-3">{loan.book}</td>
-                  <td className="p-3">{loan.tanggal_pinjam}</td>
-                  <td className="p-3">{loan.batas_kembali}</td>
+                    <td className="p-3 text-sm text-slate-700 dark:text-gray-200">
+                      <div>
+                        <p className="font-medium">{loan.books?.judul || "-"}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {loan.books?.penulis || "-"}
+                        </p>
+                      </div>
+                    </td>
 
-                  <td className="p-3">
-                    <Badge className={isLate ? "bg-red-600" : "bg-green-600"}>
-                      {loan.status}
-                    </Badge>
-                  </td>
+                    <td className="p-3 text-sm text-slate-700 dark:text-gray-200">
+                      {loan.tanggal_pinjam
+                        ? new Date(loan.tanggal_pinjam).toLocaleDateString("id-ID")
+                        : "-"}
+                    </td>
 
-                  <td className="p-3">
-                    {isLate ? (
-                      <span className="text-red-500 font-semibold">
-                        Rp {fine.toLocaleString()}
+                    <td className="p-3 text-sm text-slate-700 dark:text-gray-200">
+                      {loan.batas_kembali
+                        ? new Date(loan.batas_kembali).toLocaleDateString("id-ID")
+                        : "-"}
+                    </td>
+
+                    <td className="p-3 text-sm">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadge(
+                          loan.status
+                        )}`}
+                      >
+                        {getStatusLabel(loan.status)}
                       </span>
-                    ) : "-"}
-                  </td>
+                    </td>
 
-                  <td className="p-3 flex gap-2">
-                    <Button
-                      size="sm"
-                      className="bg-green-600 hover:bg-green-700 text-white"
-                      onClick={() => updateStatus(loan.id, "dikembalikan")}
-                    >
-                      <CheckCircle className="w-4 h-4" />
-                    </Button>
+                    <td className="p-3 flex items-center gap-2">
+                      <button
 
-                    <Button
-                      size="sm"
-                      className="bg-red-600 hover:bg-red-700 text-white"
-                      onClick={() => updateStatus(loan.id, "ditolak")}
-                    >
-                      <XCircle className="w-4 h-4" />
-                    </Button>
-                  </td>
-                </motion.tr>
-              );
-            })}
-          </tbody>
-        </table>
+                        onClick={() => redirect(`/admin/dashboard/loans/${loan.id}`)}
+                        className="p-2 rounded-lg hover:bg-sky-100 dark:hover:bg-sky-800 transition"
+                        title="Lihat Detail"
+                      >
+                        <Eye size={18} className="text-sky-600 dark:text-sky-400" />
+                      </button>
 
-        {/* PAGINATION */}
-        <div className="flex justify-between items-center mt-5">
-          <Button disabled={currentPage === 1} onClick={() => setCurrentPage((p) => p - 1)}>
-            Prev
-          </Button>
+                      {loan.status === "menunggu" && (
+                        <>
+                          <button
+                            onClick={() => handleApprove(loan.id)}
+                            className="p-2 rounded-lg hover:bg-green-100 dark:hover:bg-green-800 transition"
+                            title="Setujui"
+                          >
+                            <CheckCircle
+                              size={18}
+                              className="text-green-600 dark:text-green-400"
+                            />
+                          </button>
 
-          <p>Page {currentPage} / {totalPages}</p>
-
-          <Button
-            disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage((p) => p + 1)}
-          >
-            Next
-          </Button>
-        </div>
+                          <button
+                            onClick={() => handleReject(loan.id)}
+                            className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-800 transition"
+                            title="Tolak"
+                          >
+                            <XCircle size={18} className="text-red-600 dark:text-red-400" />
+                          </button>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
