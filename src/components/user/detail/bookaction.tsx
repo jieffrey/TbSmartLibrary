@@ -7,6 +7,7 @@ import QRModal from "./QRModal";
 import { useEffect, useState } from "react";
 import { createBrowserSupabase } from "@/lib/supabase/client";
 import { redirect } from "next/navigation";
+import UniversalQRModal from "@/components/admin/manajemen-buku/universalqrcode";
 
 export default function BookActions(data: any) {
   const [borrowOpen, setBorrowOpen] = useState(false);
@@ -257,13 +258,14 @@ function handleScanSuccess() {
         batasKembali={qrData?.batas_kembali}
       /> */}
 
-      <QRModal
-  isOpen={isOpen}
-  onClose={() => setIsOpen(false)}
+      <UniversalQRModal
+  isOpen={qrOpen}
+  onClose={() => setQROpen(false)}
   type="borrow"
   userId={session?.user?.id}
   bookId={data.id}
-  batasKembali={qrData?.batas_kembali }
+  bookTitle={data.judul}
+  batasKembali={qrData?.batas_kembali}
   scanSuccess={scanSuccess}
 />
 

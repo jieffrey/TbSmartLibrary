@@ -9,8 +9,10 @@ export default function UserHome() {
   const [books, setBooks] = useState([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("Semua");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     fetch("/api/books")
       .then((res) => res.json())
       .then((data) => {
@@ -21,8 +23,16 @@ export default function UserHome() {
         } else if (Array.isArray(data?.data)) {
           setBooks(data.data);
         } else {
+          console.error("Invalid data format:", data);
           setBooks([]);
         }
+      })
+      .catch((error) => {
+        console.error("Error fetching books:", error);
+        setBooks([]);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, []);
 
@@ -39,11 +49,22 @@ export default function UserHome() {
       <SearchBar onSearch={(v) => setSearch(v)} />
       <CategoryList onSelectCategory={(cat) => setCategory(cat)} />
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {filtered.map((book) => (
-          <BookCard key={book.id} {...book} />
-        ))}
-      </div>
+      {loading ? (
+        <div className="flex justify-center items-center py-20">
+          <p className="text-gray-500">Loading books...</p>
+        </div>
+      ) : filtered.length > 0 ? (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {filtered.map((book) => (
+            // ✅ FIX: Pass book as prop, not spread
+            <BookCard key={book.id} book={book} />
+          ))}
+        </div>
+      ) : (
+        <div className="flex justify-center items-center py-20">
+          <p className="text-gray-500">No books found</p>
+        </div>
+      )}
     </div>
   );
 }

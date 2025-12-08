@@ -1,12 +1,12 @@
 import { 
-  ArrowLeft, Pencil, Trash2, Calendar, User, Building, Tag, 
+  ArrowLeft, Pencil, Calendar, User, Building, Tag, 
   Package, MapPin, QrCode 
 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import DeleteBookButton from "@/components/admin/manajemen-buku/DeleteBookButton";
-import QRCodeDisplay from "@/components/admin/manajemen-buku/QRCodeDisplay";
 import BookCover from "@/components/admin/manajemen-buku/BookCover";
+import QRCodeSection from "@/components/admin/manajemen-buku/QrCodeSection";
 
 type BookDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -26,7 +26,7 @@ export default async function BookDetailPage(props: BookDetailPageProps) {
   if (!response.ok) notFound();
 
   const book = await response.json();
-  console.log("==========", book)
+  console.log("========== Book Data:", book);
 
   return (
     <div className="p-6 md:p-8 max-w-6xl mx-auto">
@@ -88,7 +88,12 @@ export default async function BookDetailPage(props: BookDetailPageProps) {
                 <QrCode size={20} />
                 QR Code
               </h3>
-              <QRCodeDisplay qrCode={book.qr_code} bookTitle={book.judul} />
+              {/* ✅ Client Component for QR */}
+              <QRCodeSection 
+                qrCode={book.qr_code} 
+                bookId={book.id}
+                bookTitle={book.judul} 
+              />
             </div>
           )}
         </div>
@@ -174,7 +179,7 @@ export default async function BookDetailPage(props: BookDetailPageProps) {
               </div>
 
               {/* Lokasi Rak */}
-              {book.shelf_location && (
+              {book.rack && (
                 <div className="flex items-start gap-3">
                   <div className="p-2 rounded-lg bg-pink-50 dark:bg-pink-900/20">
                     <MapPin className="w-5 h-5 text-pink-600 dark:text-pink-400" />
@@ -182,7 +187,7 @@ export default async function BookDetailPage(props: BookDetailPageProps) {
                   <div>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Lokasi Rak</p>
                     <p className="font-semibold text-gray-800 dark:text-white">
-                      {book.shelf_location}
+                      {book.rack.kode} - {book.rack.deskripsi}
                     </p>
                   </div>
                 </div>

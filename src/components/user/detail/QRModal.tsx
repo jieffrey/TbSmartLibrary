@@ -10,7 +10,7 @@ export default function QRModal({
   userId,
   bookId,
   batasKembali,
-  scanSuccess = false, // <== tambahan
+  scanSuccess = false,
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -33,6 +33,16 @@ export default function QRModal({
   };
 
   const qrString = JSON.stringify(qrPayload);
+
+  // ✅ DEBUG: Console log data
+  console.log("🔍 QR Modal Data:", {
+    isOpen,
+    userId,
+    bookId,
+    batasKembali,
+    qrString,
+    scanSuccess,
+  });
 
   function handleRedirect() {
     router.push("/user/peminjaman");
@@ -61,7 +71,6 @@ export default function QRModal({
           </button>
         </div>
 
-        {/* Jika scan sukses → tampilkan pesan + tombol redirect */}
         {scanSuccess ? (
           <>
             <div className="p-4 text-center text-green-600 dark:text-green-300 font-medium">
@@ -79,7 +88,11 @@ export default function QRModal({
           <>
             {/* QR Code */}
             <div className="bg-white p-6 rounded-xl flex items-center justify-center">
-              <QRCode value={qrString} size={220} level="H" />
+              {qrString ? (
+                <QRCode value={qrString} size={220} level="H" />
+              ) : (
+                <p className="text-red-500">Error: QR data tidak valid</p>
+              )}
             </div>
 
             {/* Info */}

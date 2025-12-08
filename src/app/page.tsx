@@ -1,9 +1,9 @@
 'use client'
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "@/components/user/landingpage/header/navbar";
 import { ShineButton } from "@/components/ui/ShineButton";
-import BookCard from "@/components/user/landingpage/catalog/BookCard";
+import { BookCard } from "@/components/user/landingpage/catalog/BookCard";
 import CTAButton from "@/components/user/landingpage/catalog/CTAbutton";
 import { motion } from "framer-motion";
 import FeatureList from "@/components/user/landingpage/fitur/FeatureList";
@@ -11,15 +11,69 @@ import StatList from "@/components/user/landingpage/stats/StatList";
 import Footer from "@/components/user/landingpage/footer/Footer";
 import ContactSection from "@/components/user/landingpage/contact/ContactSection";
 
+type Book = {
+  id: string;
+  judul: string;
+  penulis: string;
+  penerbit: string;
+  kategori: string;
+  stok: number;
+  image_url?: string;
+  rack?: {
+    kode: string;
+    deskripsi: string;
+  };
+};
+
 const Hero: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const [books, setBooks] = useState<Book[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    const books = [
-        { id: 1, title: "Pemrograman Dasar", category: "Teknologi", rating: 4.8, img: "/images/books/book1.jpg" },
-        { id: 2, title: "Psikologi Pendidikan", category: "Pendidikan", rating: 4.6, img: "/images/books/book2.jpg" },
-        { id: 3, title: "Sejarah Dunia", category: "Sejarah", rating: 4.7, img: "/images/books/book3.jpg" },
-        { id: 4, title: "Kewirausahaan Modern", category: "Bisnis", rating: 4.9, img: "/images/books/book4.jpg" },
-    ]
+    useEffect(() => {
+      async function fetchFeaturedBooks() {
+        try {
+          setLoading(true);
+          setError(null);
+          
+          console.log("Fetching books from /api/books...");
+          const res = await fetch("/api/books?limit=4");
+          console.log("Response status:", res.status);
+          
+          if (!res.ok) {
+            const errorText = await res.text();
+            console.error("API Error:", errorText);
+            throw new Error(`HTTP ${res.status}: ${errorText}`);
+          }
+          
+          const result = await res.json();
+          console.log("API Response:", result);
+
+          // Handle different response formats
+          if (result.success && Array.isArray(result.data)) {
+            console.log("Books found:", result.data.length);
+            setBooks(result.data);
+          } else if (Array.isArray(result)) {
+            console.log("Books found (direct array):", result.length);
+            setBooks(result);
+          } else {
+            console.warn("Unexpected response format:", result);
+            setBooks([]);
+          }
+        } catch (err: any) {
+          console.error("Fetch error:", err);
+          // Jangan throw error, cukup set error state
+          setError(err.message || "Gagal memuat data buku");
+          setBooks([]);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      fetchFeaturedBooks();
+    }, []);
+
     return (
         <div className="overflow-x-hidden">
             <section
@@ -70,7 +124,6 @@ const Hero: React.FC = () => {
     </p>
 
     <div className="flex flex-col sm:flex-row justify-center gap-4">
-      {/* Tombol Lihat Katalog */}
       <Link href="#catalog">
         <ShineButton
           label="Lihat Katalog"
@@ -79,8 +132,7 @@ const Hero: React.FC = () => {
         />
       </Link>
 
-      {/* Tombol Pinjam */}
-      <Link href="full-width-pages/auth/signup">
+      <Link href="/full-width-pages/auth/signin">
         <ShineButton
           label="Pinjam Sekarang"
           size="lg"
@@ -109,15 +161,69 @@ const Hero: React.FC = () => {
         Jelajahi ribuan buku digital yang siap kamu pinjam kapan saja.
     </p>
 
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 px-6 md:px-16">
-        {books.map((book) => (
-            <BookCard key={book.id} {...book} />
-        ))}
-    </div>
+    {/* Loading State */}
+    {loading ? (
+      <div className="flex justify-center items-center py-12">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Memuat koleksi buku...</p>
+        </div>
+      </div>
+    ) : error ? (
+      // Error State
+      <div className="text-center py-12">
+        <div className="text-6xl mb-4">⚠️</div>
+        <p className="text-red-600 dark:text-red-400 mb-2 font-semibold">
+          Gagal Memuat Data Buku
+        </p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+          {error}
+        </p>
+        <div className="flex gap-4 justify-center">
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+          >
+            Muat Ulang
+          </button>
+          <Link href="/user">
+            <button className="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+              Lihat Semua Buku
+            </button>
+          </Link>
+        </div>
+      </div>
+    ) : books.length === 0 ? (
+      // Empty State
+      <div className="text-center py-12">
+        <div className="text-6xl mb-4">📚</div>
+        <p className="text-gray-600 dark:text-gray-400 mb-2 font-semibold">
+          Belum Ada Koleksi Buku
+        </p>
+        <p className="text-sm text-gray-500 dark:text-gray-500 mb-4">
+          Koleksi buku akan segera ditambahkan
+        </p>
+        <Link href="/admin/dashboard/books">
+          <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+            Tambah Buku (Admin)
+          </button>
+        </Link>
+      </div>
+    ) : (
+      // Books Grid
+      <>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 px-6 md:px-16">
+          {books.map((book) => {
+            console.log("Rendering book:", book.id, book.judul); // ✅ Debug
+            return <BookCard key={book.id} book={book} />;
+          })}
+        </div>
 
-    <div className="mt-12">
-        <CTAButton href="/catalog" text="Lihat Semua Buku" variant="primary" />
-    </div>
+        <div className="mt-12">
+          <CTAButton href="/user/home" text="Lihat Semua Buku" variant="primary" />
+        </div>
+      </>
+    )}
 </section>
 
     {/* fitur section */}
@@ -211,16 +317,15 @@ const Hero: React.FC = () => {
     </p>
 
     <div className="flex flex-col sm:flex-row justify-center gap-6">
-      <CTAButton href="/signup" text="Masuk Sekarang" variant="primary" />
+      <CTAButton href="/full-width-pages/auth/signin" text="Masuk Sekarang" variant="primary" />
     </div>
   </motion.div>
 </section>
 
-
-
     <section id="contact">
-    <ContactSection/>
+      <ContactSection/>
     </section>
+    
     <Footer/>
         </div>
     );
