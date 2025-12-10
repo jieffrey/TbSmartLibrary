@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import UniversalQRModal from "@/components/shared/UniversalQRModal";
+import UniversalQRModal from "./universalqrcode";
 
 type QRCodeSectionProps = {
   qrCode: string;

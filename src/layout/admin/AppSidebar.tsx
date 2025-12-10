@@ -2,9 +2,10 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation"; // Tambah useRouter
 import { useSidebar } from "../../context/SidebarContext";
 import LogoutButton from '../../components/auth/LogoutButton';
+import { QrCodeIcon } from "lucide-react";
 
 import {
   BoxCubeIcon,
@@ -43,27 +44,27 @@ const navItems: NavItem[] = [
     name: "Manajemen Pengguna",
     href: "/admin/dashboard/users",
   },
-
   {
     name: "Peminjaman",
     icon: <ListIcon />,
     href: '/admin/dashboard/loans'
-    // subItems: [
-    //   { name: "Peminjaman Aktif", href: "/admin/dashboard/loans/active" },
-    //   { name: "Peminjaman Terlambat", href: "/admin/dashboard/loans/overdue" },
-    //   { name: "Pengembalian", href: "/admin/dashboard/loans/return" },
-    // ],
   },
   {
     name: "Laporan",
     icon: <PageIcon />,
     href: "/admin/dashboard/reports",
   },
+  {
+    name: "scan",
+    icon: <QrCodeIcon/>,
+    href: "/admin/scan",
+  },
 ];
 
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const pathname = usePathname();
+  const router = useRouter(); // Tambah ini
 
   const [openSubmenu, setOpenSubmenu] = useState<{
     type: "main";
@@ -83,7 +84,11 @@ const AppSidebar: React.FC = () => {
     );
   };
 
-  // hitung tinggi dropdown biar smooth
+  // Handler untuk navigasi manual
+  const handleNavigate = (href: string) => {
+    router.push(href);
+  };
+
   useEffect(() => {
     if (openSubmenu !== null) {
       const key = `${openSubmenu.type}-${openSubmenu.index}`;
@@ -101,9 +106,7 @@ const AppSidebar: React.FC = () => {
       {items.map((nav, index) => (
         <li key={nav.name}>
           {nav.subItems ? (
-            /** -------------------------
-             *  SUBMENU (tetap button)
-             * ------------------------*/
+            // SUBMENU (button)
             <button
               onClick={() => handleSubmenuToggle(index, type)}
               className={`menu-item group ${
@@ -140,13 +143,10 @@ const AppSidebar: React.FC = () => {
             </button>
           ) : (
             nav.href && (
-              /** -------------------------------------------------------
-               *  🔧 PERUBAHAN DI SINI — WRAP DENGAN <Link>
-               *  agar pindah halaman instan tanpa delay
-               * ------------------------------------------------------*/
-              <Link
-                href={nav.href}
-                className={`menu-item group ${
+              // PAKAI BUTTON dengan onClick router.push
+              <button
+                onClick={() => handleNavigate(nav.href!)}
+                className={`menu-item group w-full ${
                   isActive(nav.href)
                     ? "menu-item-active"
                     : "menu-item-inactive"
@@ -165,7 +165,7 @@ const AppSidebar: React.FC = () => {
                 {(isExpanded || isHovered || isMobileOpen) && (
                   <span className="menu-item-text">{nav.name}</span>
                 )}
-              </Link>
+              </button>
             )
           )}
 
@@ -185,13 +185,9 @@ const AppSidebar: React.FC = () => {
               <ul className="mt-2 space-y-1 ml-9">
                 {nav.subItems.map((sub) => (
                   <li key={sub.name}>
-                    {/** -------------------------
-                     *  🔧 PERUBAHAN DI SINI
-                     *  SUBMENU dibungkus <Link>
-                     * ------------------------*/}
-                    <Link
-                      href={sub.href}
-                      className={`menu-dropdown-item ${
+                    <button
+                      onClick={() => handleNavigate(sub.href)}
+                      className={`menu-dropdown-item w-full ${
                         isActive(sub.href)
                           ? "menu-dropdown-item-active"
                           : "menu-dropdown-item-inactive"
@@ -207,7 +203,7 @@ const AppSidebar: React.FC = () => {
                           <span className="menu-dropdown-badge">pro</span>
                         )}
                       </span>
-                    </Link>
+                    </button>
                   </li>
                 ))}
               </ul>
